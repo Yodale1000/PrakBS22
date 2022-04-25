@@ -15,8 +15,8 @@ struct keyValueStore{
     char value[MAX_LENGTH_VALUE];
 };
 
-int put(char* key, char* value);
-int get(char* key, char* res);
-int del(char* key);
+int put(char* key, char* value, struct keyValueStore *kvs);
+int get(char* key, char* res, struct keyValueStore *kvs);
+int del(char* key, struct keyValueStore *kvs);
 
 #endif //PRAKBS22_KEYVALUESTORE_H
