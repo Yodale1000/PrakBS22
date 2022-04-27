@@ -1,10 +1,9 @@
-//
-// Created by Denitsa on 22.04.2022.
-//
+
 #include <stdio.h>
+#include <string.h>
 #include "keyValueStore.h"
 #define MAX_LENGTH_KVS 100
-#include <string.h>
+
 
 /*Die put() Funktion soll eine Wert (value) mit dem Schlüsselwert (key) hinterlegen.
  * Wenn der Schlüssel bereits vorhanden ist,
@@ -36,7 +35,7 @@ int get(char *key, char *res, struct keyValueStore *kvs){
     for( i = 0;i<MAX_LENGTH_KVS;i++){
         if(strcmp(kvs[i].key,key)){
            printf("Value: %s",kvs[i].value);
-            return 0 ;
+           return 0 ;
         }
         else{
             return -1;
