@@ -36,4 +36,12 @@ void bind_socket(socket_t *sock, unsigned long address, unsigned short add_len);
  * @param sock unser Socket
  */
 void listen_socket( socket_t *sock );
+
+/**
+ *
+ * @param sock = Filedeskriptor des Sockets, von dem eine Verbindung entegengenommen wird
+ * @param new_socket = Fildeskriptor der angenommenen Verbindung
+ */
+void accept_socket( socket_t *sock, socket_t *new_socket );
+
 #endif //PRAKBS22_SUB_H

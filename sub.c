@@ -60,3 +60,15 @@ void listen_socket( socket_t *sock ) {
     // -1 fehlerhaft, 0 erfolgreich
     if(listen(*sock, 5) == -1 ) { error_exit("Fehler"); }
 }
+void accept_socket (socket_t *sock, socket_t *new_socket){
+    //Struktur mit der Infos zum Client
+    struct sockaddr_in client;
+    //die Länge der Struktut, die fü Client übergeben wird
+    unsigned int len;
+
+    len = sizeof(client);
+    //mit Pointer auf Struktur mit der Infos zum Client durch &client
+    *new_socket=accept(*sock,(struct sockaddr *)&client, &len);
+    //Filedeskriptor ist im Fehlerfall -1
+    if (*new_socket  == -1) { error_exit("Fehler bei accept"); }
+}
