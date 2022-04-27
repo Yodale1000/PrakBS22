@@ -24,5 +24,16 @@ void error_exit(char *message);
  * **/
 int create_socket( int domain, int type, int protocol );
 
+/**
+ * @param sock ist unser Socket
+ * @param address = die Adresse, an der das Socket gebunden ist(aus IP und Port)
+ * @param add_len = groesse des Structs
+ * **/
+void bind_socket(socket_t *sock, unsigned long address, unsigned short add_len);
 
+/**
+ *
+ * @param sock unser Socket
+ */
+void listen_socket( socket_t *sock );
 #endif //PRAKBS22_SUB_H
