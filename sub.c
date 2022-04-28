@@ -8,6 +8,7 @@
 //Fehler behandeln und Fehlermeldung ausgeben
 void error_exit(char *message){
     //stderr ist Standardfehlerausgabe
+    //Fehler mit dem Fehlercode von errno auswerten
     printf(stderr, "%s: %s\n", message, strerror(errno));
     exit(EXIT_FAILURE);
 }
@@ -61,17 +62,34 @@ void accept_socket (socket_t *sock, socket_t *new_socket){
     //Struktur mit der Infos zum Client
     struct sockaddr_in client;
     //die Länge der Struktur, die für Client übergeben wird
-    unsigned int len;
+    unsigned int length_address_of_client;
 
-    len = sizeof(client);
+    length_address_of_client = sizeof(client);
     //mit Pointer auf Struktur mit der Infos zum Client durch &client
-    *new_socket=accept(*sock,(struct sockaddr *)&client, &len);
+    *new_socket=accept(*sock,(struct sockaddr *)&client, &length_address_of_client);
     //Filedeskriptor ist im Fehlerfall -1
-    if (*new_socket  == -1) { error_exit("Fehler bei accept"); }
+    if (*new_socket  == -1) { error_exit("Fehler bei accept. Verbindung wird nicht angenommen"); }
 }
 void close_socket(socket_t *socket) {
     if (close(*socket) < 0) {
         error_exit("Fehler beim Schließen der Verbindung");
     }
 }
+// Daten versenden via TCP
+void send_data( socket_t *socket, char *data, size_t size) {
+    //return wert von send ist Anzahl der Bytes, die gesendet (kann 0 sein) bzw. empfangen wurde
+    //falls <0 ist Fehler aufgetreten
+    if(send( *socket, data, size, 0) == -1 )
+        error_exit("Fehler bei send");
+}
 
+// Daten empfangen via TCP
+void recv_data( socket_t *socket, char *data, size_t size_puffer) {
+    unsigned int length;
+    //return Wert von recv ist ssize_t ( signed size_t = Größe vom Objekt im Speicher)
+    length = recv (*socket, data, size_puffer, 0);
+    if( length > 0 )
+        data[length] = '\0';
+    else
+        error_exit("Fehler bei recv()");
+}

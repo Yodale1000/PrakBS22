@@ -49,6 +49,21 @@ void accept_socket( socket_t *sock, socket_t *new_socket );
  */
 void close_socket(socket_t *socket);
 
+/**
+ *
+ * @param sock Filedeskriptor, über den wir die Daten senden wollen
+ * @param data ein Zeiger auf den Speicherbereich erwartet, in dem sich die Daten befinden
+ * @param size Größe des Pakets das geschickt wird
+ */
+void send_data( socket_t *sock, char *data, size_t size);
+
+/**
+ *
+ * @param sock Socket-Deskriptor der Verbindung
+ * @param data Zeiger auf einen Puffer, in den die Daten gelegt werden sollen
+ * @param size Länge des Puffers
+ */
+void recv_data( socket_t *sock, char *data, size_t size_puffer);
 
 
 #endif //PRAKBS22_SUB_H

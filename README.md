@@ -23,7 +23,7 @@ MS1:
 
 Wir implementieren einen Server! Also implementieren wir die Funktionen,
 die zu der Server gehören und die Serverschleife:
-![img.png](img.png)
+![img.png](img.png)\
 (Quelle: https://openbook.rheinwerk-verlag.de/c_von_a_bis_z/bilderklein/klein25_002.gif)
 
 
@@ -39,7 +39,7 @@ struct in_addr sin_addr; *// 32-Bit IP-Adresse*\
 char sin_zero[8]\
 };
 
-#Byte Order
+# Byte Order
 Quelle: Beej's Guide to Network Programming\
 The thing is, everyone in the Internet world has generally agreed that if you want to represent the two-byte hex number, say b34f, you’ll store it in two sequential bytes b3 followed by 4f. Makes sense, and, as Wilford Brimley17 would tell you, it’s the Right Thing To Do. This number, stored with the big end first, is called Big-Endian.
 
@@ -53,3 +53,34 @@ A lot of times when you’re building packets or filling out data structures you
 
 Good news! You just get to assume the Host Byte Order isn’t right, and you always run the value through a function to set it to Network Byte Order. The function will do the magic conversion if it has to, and this way your code is portable to machines of differing endiannes
 
+
+
+# Systemaufrufe und deren Parameter
+## Socket erzeugen socket()
+
+socket_fd= socket(domain, type, protocol)\
+socket_fd ist der Filedeskriptor, den wir zurückbekommen und return Wert ist int\
+Der Fildeskriptor wird zur Identifikation des Sockets benutzt\
+domain = Protokollfamilie zB AF_INET ist für ipv4\
+type = Typ des Sockets z.B SOCK_STREAM ist für TCP Kommunikation \
+protocol = genauer spezifizieren, aber in der Regel auf 0 gesetzt (= Standardprotokoll)\
+
+## Binden einer Adresse an das Socket
+
+result= bind(socket_fd, address, address_len);\
+
+result ist mit return Wert int und ist 0 wenn das Binden erfolgreich war und -1 wenn fehlerhaft \
+socket_fd ist der Filedeskriptor, den wir bei socket() zurückbekommen\
+address ist die Adresse, an die das Socket gebunden werden soll und ist ein struct ( besteht aus IP Adresse Feld und Port Adresse Feld) ist in netinet/in.h definiert siehe oben\
+address_len ist die Größe von address und wird oft mit sizeof berechnet\
+
+Wenn man die Adresse an das Socket binden will, muss man die Felder der Adresse setzen:\
+
+struct  sockaddr_in server; // Structfür die Adresseserver.\
+sin_familiy= AF_INET; //für ipv4\
+server.sin_addr.s_addr= INADDR_ANY; //alle erreichbare Hostadressen\
+server.sin_port= htons(5678); // host byteordertonetworkbyteorder\
+
+
+
+## 
