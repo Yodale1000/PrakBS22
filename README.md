@@ -58,51 +58,51 @@ Quelle: Beej's Guide to Network Programming\
 # Systemaufrufe und deren Parameter
 ## Socket erzeugen socket()
 
-### **socket_fd= socket(domain, type, protocol)**\
+### **socket_fd= socket(domain, type, protocol)**
 **socket_fd** ist der Filedeskriptor, den wir zurückbekommen und return Wert ist int\
 Der Fildeskriptor wird zur Identifikation des Sockets benutzt\
 **domain** = Protokollfamilie zB AF_INET ist für ipv4\
 **type** = Typ des Sockets z.B SOCK_STREAM ist für TCP Kommunikation \
-**protocol** = genauer spezifizieren, aber in der Regel auf 0 gesetzt (= Standardprotokoll)\
+**protocol** = genauer spezifizieren, aber in der Regel auf 0 gesetzt (= Standardprotokoll)
 
 ## Binden einer Adresse an das Socket
 
-### **result= bind(socket_fd, address, address_len);**\
+### **result= bind(socket_fd, address, address_len);**
 
 **result** ist mit return Wert int und ist 0 wenn das Binden erfolgreich war und -1 wenn fehlerhaft \
 **socket_fd** ist der Filedeskriptor, den wir bei socket() zurückbekommen\
 **address** ist die Adresse, an die das Socket gebunden werden soll und ist ein struct ( besteht aus IP Adresse Feld und Port Adresse Feld) ist in netinet/in.h definiert siehe oben\
-**address_len** ist die Größe von address und wird oft mit sizeof berechnet\
+**address_len** ist die Größe von address und wird oft mit sizeof berechnet
 
-Wenn man die Adresse an das Socket binden will, muss man die Felder der Adresse setzen:\
+Wenn man die Adresse an das Socket binden will, muss man die Felder der Adresse setzen:
 
 **struct  sockaddr_in server;** // Struct für die Adresseserver.\
 **sin_familiy= AF_INET;** //für ipv4\
 **server.sin_addr.s_addr= INADDR_ANY;** //alle erreichbare Hostadressen\
-**server.sin_port= htons(5678);** // host byteordertonetworkbyteorder\
+**server.sin_port= htons(5678);** // host byte order to network byte order
 
 
 
 ## Auf Verbindung hören listen()
 
-### **ret= listen(socket_fd, backlog);**\
+### **ret= listen(socket_fd, backlog);**
 **return Wert** ist ein int, 0 wenn OK, -1 Fehler\
 **socket_fd** ist Filedeskriptor des Sockets, der auf Verbindungen hört\
-**backlog** ist die Länge der Warteschlange für Clients*\
+**backlog** ist die Länge der Warteschlange für Clients*
 
 ## Verbindung akzeptieren
 
-### **connection_fd= accept(socket_fd, client, client_len);**\
+### **connection_fd= accept(socket_fd, client, client_len);**
 **return Wert** ist ein Filedescriotor der angenommenen Verbindung = Verbindungsdeskriptor mit cfd häufig gekennzeichnet\
 **socket_fd** Filedeskriptor des Sockets, von dem eine Verbindung entgegengenommen werden soll = Randezvous Descriptor\
 **client** Pointer auf die Struktur mit Infos über Client ( struct vom Typ sockaddr_in)\
-**client_len** Länge der Struktur vom 2.Paramenter\
+**client_len** Länge der Struktur vom 2.Paramenter
 
 
 ## Daten senden send() und Daten empfangen recv()
 
-### **number_bytes= recv(connection_fd, buffer, number_bytes, flags)**\
-### **number_bytes= send(connection_fd, buffer, number_bytes, flags)**\
+### **number_bytes= recv(connection_fd, buffer, number_bytes, flags)**
+### **number_bytes= send(connection_fd, buffer, number_bytes, flags)**
 
 **return Wert** bei beiden f()s ist die Anzahl an übertragenen Bytes\
 **connection_fd** ist der Verbindungsdeskriptor von accept(siehe oben)\
