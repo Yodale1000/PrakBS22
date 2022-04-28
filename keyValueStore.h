@@ -16,7 +16,7 @@ struct keyValueStore{
 };
 
 int put(char* key, char* value, struct keyValueStore *kvs);
-int get(char* key, char* res, struct keyValueStore *kvs);
+int get(char* key, struct keyValueStore *kvs);
 int del(char* key, struct keyValueStore *kvs);
 
 #endif //PRAKBS22_KEYVALUESTORE_H
