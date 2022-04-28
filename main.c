@@ -24,7 +24,8 @@ int main() {
         if (fork() == 0) {
             while (exec(input_func(&connection), &connection, shared_memory) != 2) {
             }
-        } else
+        } else {
             close(connection);
+        }
     } while (1);
 }

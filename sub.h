@@ -82,6 +82,6 @@ void send_data(socket_t *sock, char *data, size_t size);
 void recv_data(socket_t *sock, char *data, size_t size_puffer);
 
 
-int exec(struct input *in, const int *cfd, struct keyValueStore *key_val);
+int exec(struct input *in, const int *connection, struct keyValueStore *key_val);
 
 #endif //PRAKBS22_SUB_H

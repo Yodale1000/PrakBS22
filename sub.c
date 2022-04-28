@@ -105,10 +105,7 @@ void recv_data(socket_t *socket, char *data, size_t size_puffer) {
         error_exit("Fehler bei recv()");
 }
 
-/*****************************************************************************************************************/
-/*************************************** Input Verarbeitung ******************************************************/
-/*****************************************************************************************************************/
-
+//Input
 struct input *input_func(const int *cfd) {
     char command[MAX_COMMAND_LENGTH] = {};
     char key[MAX_KEY_LENGTH] = {};
@@ -153,27 +150,27 @@ struct input *input_func(const int *cfd) {
     strcpy(input.command_s, command);
     strcpy(input.key_s, key);
     strcpy(input.value_s, value);
-
+    //printf("%s,%s,%s", command, key, value);
     return &input;
 }
 
 
-int exec(struct input *in, const int *cfd, struct keyValueStore *key_val) {
+int exec(struct input *in, const int *connection, struct keyValueStore *key_val) {
     if (strcmp(in->command_s, "GET") == 0) {
-        return get(in->key_s, key_val);
+        return get(in->key_s, key_val,*connection);
     } else if (strcmp(in->command_s, "PUT") == 0) {
-        return put(in->key_s, in->value_s, key_val);
+        return put(in->key_s, in->value_s, key_val,*connection);
     } else if (strcmp(in->command_s, "DEL") == 0) {
-        return del(in->key_s, key_val);
+        return del(in->key_s, key_val,*connection);
     } else if (strcmp(in->command_s, "QUIT") == 0) {
-        close(*cfd);
+        close(*connection);
         printf("Disconnected\n");
         return 2;
     } else {
-        printf("Invalid Input\n");
-        if (send(*cfd, "Invalid Input\n", sizeof("Invalid Input\n"), 0) == -1) {
-            printf("Error occurred at send\n");
-        }
-        return 0;
+         printf("Invalid Input\n");
+         if (send(*connection, "Invalid Input\n", sizeof("Invalid Input\n"), 0) == -1) {
+             printf("Error occurred at send\n");
+         }
+         return 0;
     }
 }
