@@ -22,7 +22,7 @@ MS1:
   - recv
 
 Wir implementieren einen Server! Also implementieren wir die Funktionen,
-die zu der Server gehören und die Serverschleife:
+die zu dem Server gehören und die Serverschleife:
 ![img.png](img.png)\
 (Quelle: https://openbook.rheinwerk-verlag.de/c_von_a_bis_z/bilderklein/klein25_002.gif)
 
@@ -58,7 +58,7 @@ Quelle: Beej's Guide to Network Programming\
 # Systemaufrufe und deren Parameter
 ## Socket erzeugen socket()
 
-**socket_fd= socket(domain, type, protocol)**\
+### **socket_fd= socket(domain, type, protocol)**\
 **socket_fd** ist der Filedeskriptor, den wir zurückbekommen und return Wert ist int\
 Der Fildeskriptor wird zur Identifikation des Sockets benutzt\
 **domain** = Protokollfamilie zB AF_INET ist für ipv4\
@@ -67,7 +67,7 @@ Der Fildeskriptor wird zur Identifikation des Sockets benutzt\
 
 ## Binden einer Adresse an das Socket
 
-**result= bind(socket_fd, address, address_len);**\
+### **result= bind(socket_fd, address, address_len);**\
 
 **result** ist mit return Wert int und ist 0 wenn das Binden erfolgreich war und -1 wenn fehlerhaft \
 **socket_fd** ist der Filedeskriptor, den wir bei socket() zurückbekommen\
@@ -85,7 +85,27 @@ Wenn man die Adresse an das Socket binden will, muss man die Felder der Adresse 
 
 ## Auf Verbindung hören listen()
 
-**ret= listen(socket_fd, backlog);**\
+### **ret= listen(socket_fd, backlog);**\
 **return Wert** ist ein int, 0 wenn OK, -1 Fehler\
 **socket_fd** ist Filedeskriptor des Sockets, der auf Verbindungen hört\
-**backlog* ist die Länge der Warteschlange für Clients*
+**backlog** ist die Länge der Warteschlange für Clients*\
+
+## Verbindung akzeptieren
+
+### **connection_fd= accept(socket_fd, client, client_len);**\
+**return Wert** ist ein Filedescriotor der angenommenen Verbindung = Verbindungsdeskriptor mit cfd häufig gekennzeichnet\
+**socket_fd** Filedeskriptor des Sockets, von dem eine Verbindung entgegengenommen werden soll = Randezvous Descriptor\
+**client** Pointer auf die Struktur mit Infos über Client ( struct vom Typ sockaddr_in)\
+**client_len** Länge der Struktur vom 2.Paramenter\
+
+
+## Daten senden send() und Daten empfangen recv()
+
+### **number_bytes= recv(connection_fd, buffer, number_bytes, flags)**\
+### **number_bytes= send(connection_fd, buffer, number_bytes, flags)**\
+
+**return Wert** bei beiden f()s ist die Anzahl an übertragenen Bytes\
+**connection_fd** ist der Verbindungsdeskriptor von accept(siehe oben)\
+**buffer** Buffer der sendet/der empfängt\
+**number_bytes** Anzahl Bytes, die verschickt/empfangen werden sollen\
+**flags** i.d.R. auf 0 gesetzt\
