@@ -1,8 +1,8 @@
-| Meilenstein | bis   |                          |       |   |
-|-------------|-------|--------------------------|-------|---|
-| 1           | 29.04 | bis Socket Kommunikation | - [x] |   |
-| 2           | 20.05 | bis Multiclientfähigkeit | - [ ] |   |
-| 3           | 10.06 | bis Pub/Sub              | - [ ] |   |
+| Meilenstein | bis   |                          |     |   |
+|-------------|-------|--------------------------|-----|---|
+| 1           | 29.04 | bis Socket Kommunikation | [x] |   |
+| 2           | 20.05 | bis Multiclientfähigkeit | [ ] |   |
+| 3           | 10.06 | bis Pub/Sub              | [ ] |   |
 
 MS1:
 
