@@ -34,8 +34,9 @@ void bind_socket(socket_t *sock, unsigned short port);
 /**
  *
  * @param sock unser Socket(File Deskriptor)
+ * @param wrtschl_length Länge der Warteschlange
  */
-void listen_socket( socket_t *sock );
+void listen_socket( socket_t *sock, int wrtschl_length );
 
 /**
  *

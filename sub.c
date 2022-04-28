@@ -53,10 +53,10 @@ void bind_socket (socket_t *sock, unsigned short port ){
 }
 
 //Socket wird mitgeteilt, dass sich Clients verbinden wollen
-void listen_socket( socket_t *sock ) {
+void listen_socket( socket_t *sock, int wrtschl_length ) {
     //prüfen ob listen fehlerhaft ist
     // -1 fehlerhaft, 0 erfolgreich
-    if(listen(*sock, 5) == -1 ) { error_exit("Fehler bei listen"); }
+    if(listen(*sock, wrtschl_length) == -1 ) { error_exit("Fehler bei listen"); }
 }
 void accept_socket (socket_t *sock, socket_t *new_socket){
     //Struktur mit der Infos zum Client
