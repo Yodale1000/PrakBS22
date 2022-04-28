@@ -76,7 +76,7 @@ Der Fildeskriptor wird zur Identifikation des Sockets benutzt\
 
 Wenn man die Adresse an das Socket binden will, muss man die Felder der Adresse setzen:\
 
-**struct  sockaddr_in server;** // Structfür die Adresseserver.\
+**struct  sockaddr_in server;** // Struct für die Adresseserver.\
 **sin_familiy= AF_INET;** //für ipv4\
 **server.sin_addr.s_addr= INADDR_ANY;** //alle erreichbare Hostadressen\
 **server.sin_port= htons(5678);** // host byteordertonetworkbyteorder\
