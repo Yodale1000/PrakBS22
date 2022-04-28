@@ -11,46 +11,43 @@ void error_exit(char *message){
     printf(stderr, "%s: %s\n", message, strerror(errno));
     exit(EXIT_FAILURE);
 }
+
 //Socket erstellen
 
-int create_socket(int domain, int  type, int protocol){
+int create_socket(int domain, int  type, int protocol) {
     socket_t new_socket;
     const int y = 1;
-    new_socket = socket(domain,type,protocol);
+    new_socket = socket(domain, type, protocol);
 
     //prüfen ob socket valid
-    if(new_socket < 0){
+    if (new_socket < 0) {
         error_exit("Socket ist nicht valide");
     }
     //SO_REUSEADDR erlaubt dass mehrere Clients denselben Port teilen
     // Mehrere Clients können  mit dem Server in Verbindung treten.
     // VL : für schnelles Wiederverwenden gebundener Adressen
     //SOL_SOCKET ist zum Verwalten der Optionen auf Socket-Niveau
-    setsockopt( new_socket, SOL_SOCKET,
-                SO_REUSEADDR, &y, sizeof(int));
+    setsockopt(new_socket, SOL_SOCKET,
+               SO_REUSEADDR, &y, sizeof(int));
     return new_socket;
-
 }
-
-void bind_socket (socket_t *sock, unsigned long address, unsigned short add_len ){
+void bind_socket (socket_t *sock, unsigned short port ){
     //an diese Adresse wird dann an das Socket gebunden
-    //one of several types of socket address descriptors, with
-    // different members depending on the network protocol
-    struct sockaddr_in server;
-    // kopiert eine bestimmte Anzahl(3.Arg) von bestimmten chars(2.Arg) von
-    // einem String(1.Arg) zu dem selben String(1.Arg)
-    memset( &server, 0, sizeof (server));
-    //immer AF_INET
-    server.sin_family = AF_INET;
-    //INADDR_ANY binds the socket to all available interfaces.
-    server.sin_addr.s_addr = INADDR_ANY;
-    //konvertiert die vorzeichenlose kurze Ganzzahl hostshort von  Rechner-
-    //nach Netzwerk-Byte-Ordnung.
-    server.sin_port = htons(5678);
+    //die Adresse besteht aus einigen Datenfeldern (siehe Readme)
+    struct sockaddr_in address_of_server;
+    //stellt sicher, es ist erstmal leer
+    memset(&address_of_server, 0, sizeof (address_of_server));
+    //immer AF_INET --> Protokollfamilie ipv4
+    address_of_server.sin_family = AF_INET;
+    //INADDR_ANY sagt dass jede IP-Adresse ist gültig
+    //mit htonl zu Network Byte Order konvertieren
+    address_of_server.sin_addr.s_addr = htonl(INADDR_ANY);
+    //Port mittels htons ins Network Byte Order konveriteren
+    address_of_server.sin_port = htons(port);
 
     //binden und prüfen, ob das Socket gebunden werden kann
     // bind würde ein Wert <0 liefern, wenn nicht erfolgreich
-    if (bind(*sock, (struct sockaddr*)&server,sizeof(server)) < 0)
+    if (bind(*sock, (struct sockaddr*)&address_of_server, sizeof(address_of_server)) < 0)
         error_exit("Das Socket wird nicht gebunden");
 }
 
@@ -58,12 +55,12 @@ void bind_socket (socket_t *sock, unsigned long address, unsigned short add_len 
 void listen_socket( socket_t *sock ) {
     //prüfen ob listen fehlerhaft ist
     // -1 fehlerhaft, 0 erfolgreich
-    if(listen(*sock, 5) == -1 ) { error_exit("Fehler"); }
+    if(listen(*sock, 5) == -1 ) { error_exit("Fehler bei listen"); }
 }
 void accept_socket (socket_t *sock, socket_t *new_socket){
     //Struktur mit der Infos zum Client
     struct sockaddr_in client;
-    //die Länge der Struktut, die fü Client übergeben wird
+    //die Länge der Struktur, die für Client übergeben wird
     unsigned int len;
 
     len = sizeof(client);
@@ -72,3 +69,9 @@ void accept_socket (socket_t *sock, socket_t *new_socket){
     //Filedeskriptor ist im Fehlerfall -1
     if (*new_socket  == -1) { error_exit("Fehler bei accept"); }
 }
+void close_socket(socket_t *socket) {
+    if (close(*socket) < 0) {
+        error_exit("Fehler beim Schließen der Verbindung");
+    }
+}
+

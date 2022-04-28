@@ -29,11 +29,11 @@ int create_socket( int domain, int type, int protocol );
  * @param address = die Adresse, an der das Socket gebunden ist(aus IP und Port)
  * @param add_len = groesse des Structs
  * **/
-void bind_socket(socket_t *sock, unsigned long address, unsigned short add_len);
+void bind_socket(socket_t *sock, unsigned short port);
 
 /**
  *
- * @param sock unser Socket
+ * @param sock unser Socket(File Deskriptor)
  */
 void listen_socket( socket_t *sock );
 
@@ -43,5 +43,12 @@ void listen_socket( socket_t *sock );
  * @param new_socket = Fildeskriptor der angenommenen Verbindung
  */
 void accept_socket( socket_t *sock, socket_t *new_socket );
+/**
+ *
+ * @param soket = Socket, das geschlossen werden soll
+ */
+void close_socket(socket_t *socket);
+
+
 
 #endif //PRAKBS22_SUB_H
