@@ -126,7 +126,7 @@ off_t offset)
 - filedes = Filedeskriptor, das gemappt werden soll\
   https://www.youtube.com/watch?v=rPV6b8BUwxM
 
-**fork()** erstellt Kinderprozesse. Returnt 0 zu dem Kinde und ProzessId vom Kind zum Elternprozess\
+**fork()** erstellt Kinderprozesse. Returnt 0 zu dem Kind und ProzessId vom Kind zum Elternprozess\
 https://www.youtube.com/watch?v=ss1-REMJ9GA&t=0s
 - fork() == 0 --> das ist ein Kindprozess
 
