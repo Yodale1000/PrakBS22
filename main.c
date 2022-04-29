@@ -5,11 +5,11 @@
 #define PORT 5678
 
 int main() {
-    //Randezvous Deskriptor, den wir anlegen und von dem eine
+    //Rendezvous Deskriptor, den wir anlegen und von dem eine
     //Verbindung entgegengenommen werden sollen
     int socket;
-    // Connection Deksriptor, den wir öffnen wenn wir die Verbindung akzeptieren.
-    // Randezvous lauscht weiter nach Verbindungen
+    // Connection Deskriptor, den wir öffnen, wenn wir die Verbindung akzeptieren.
+    // Rendezvous lauscht weiter nach Verbindungen
     int connection;
 
     socket = create_socket(AF_INET, SOCK_STREAM, 0);
@@ -18,9 +18,9 @@ int main() {
     printf("Socket ready\n");
 
     //Shared memory erzeugen
-    //mmap  dient zur Abbildung zwischen einem Prozessadressraum einer Datei
+    //mmap dient zur Abbildung zwischen einem Prozessadressraum einer Datei
     struct keyValueStore *data_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
-                   MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+                                            MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
     //Server Schleife
     do {

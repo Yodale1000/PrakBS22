@@ -7,10 +7,10 @@
 #include "sub.h"
 #include "keyValueStore.h"
 
-#define MAX_INPUT_LENGTH 100
 #define MAX_COMMAND_LENGTH 10
 #define MAX_KEY_LENGTH 100
 #define MAX_VALUE_LENGTH 100
+#define MAX_INPUT_LENGTH 100
 
 //Fehler behandeln und Fehlermeldung ausgeben
 void error_exit(char *message) {
@@ -31,16 +31,16 @@ int create_socket(int domain, int type, int protocol) {
     if (new_socket < 0) {
         error_exit("Socket ist nicht valide");
     }
-    //SO_REUSEADDR erlaubt dass mehrere Clients denselben Port teilen
-    // Mehrere Clients können  mit dem Server in Verbindung treten.
-    // VL : für schnelles Wiederverwenden gebundener Adressen
+    //SO_REUSEADDR erlaubt, dass mehrere Clients denselben Port teilen
+    // mehrere Clients können mit dem Server in Verbindung treten.
+    // VL: für schnelles Wiederverwenden gebundener Adressen
     //SOL_SOCKET ist zum Verwalten der Optionen auf Socket-Niveau
     setsockopt(new_socket, SOL_SOCKET,
                SO_REUSEADDR, &y, sizeof(int));
     return new_socket;
 }
 
-void bind_socket(socket_t *sock, unsigned short port) {
+void bind_socket(const socket_t *sock, unsigned short port) {
     //an diese Adresse wird dann an das Socket gebunden
     //die Adresse besteht aus einigen Datenfeldern (siehe Readme)
     struct sockaddr_in address_of_server;
@@ -48,10 +48,10 @@ void bind_socket(socket_t *sock, unsigned short port) {
     memset(&address_of_server, 0, sizeof(address_of_server));
     //immer AF_INET --> Protokollfamilie ipv4
     address_of_server.sin_family = AF_INET;
-    //INADDR_ANY sagt dass jede IP-Adresse ist gültig
+    //INADDR_ANY sagt, dass jede IP-Adresse ist gültig
     //mit htonl zu Network Byte Order konvertieren
     address_of_server.sin_addr.s_addr = htonl(INADDR_ANY);
-    //Port mittels htons ins Network Byte Order konveriteren
+    //Port mittels htons ins Network Byte Order konvertieren
     address_of_server.sin_port = htons(port);
 
     //binden und prüfen, ob das Socket gebunden werden kann
@@ -61,22 +61,22 @@ void bind_socket(socket_t *sock, unsigned short port) {
 }
 
 //Socket wird mitgeteilt, dass sich Clients verbinden wollen
-void listen_socket(socket_t *sock) {
-    //prüfen ob listen fehlerhaft ist
+void listen_socket(const socket_t *sock) {
+    //prüfen, ob listen fehlerhaft ist
     // -1 fehlerhaft, 0 erfolgreich
     if (listen(*sock, 5) == -1) { error_exit("Fehler bei listen"); }
 }
 
-void accept_socket(socket_t *sock, socket_t *new_socket) {
-    //Struktur mit der Infos zum Client
+void accept_socket(const socket_t *sock, socket_t *new_socket) {
+    //Struktur mit den Informationen zum Client
     struct sockaddr_in client;
     //die Länge der Struktur, die für Client übergeben wird
     unsigned int length_address_of_client;
 
     length_address_of_client = sizeof(client);
-    //mit Pointer auf Struktur mit der Infos zum Client durch &client
+    //mit Pointer auf Struktur mit den Informationen zum Client durch &client
     *new_socket = accept(*sock, (struct sockaddr *) &client, &length_address_of_client);
-    //Filedeskriptor ist im Fehlerfall -1
+    //File deskriptor ist im Fehlerfall -1
     if (*new_socket == -1) { error_exit("Fehler bei accept. Verbindung wird nicht angenommen"); }
 }
 
@@ -99,7 +99,7 @@ struct input *prepare_input(const int *connection) {
     counter_val = 0;
 
     //Daten empfangen
-    recv(*connection, messageInput, sizeof(messageInput),0);
+    recv(*connection, messageInput, sizeof(messageInput), 0);
     messageInput[strlen(messageInput) - 2] = ' ';
 
 
@@ -111,15 +111,15 @@ struct input *prepare_input(const int *connection) {
     }
     //suche die Position und speichere den Inhalt in command(jedes char anfangend bei i vom input, endend bei position[0]
     //gehe zur nächsten freien Stelle in command
-    for (i= 0; i < position[0]; i++) {
+    for (i = 0; i < position[0]; i++) {
         command[i] = messageInput[i];
     }
-    //Speichere mir jedes Char von input anfangend bei i, endend bei position[1] ( oben gesetzt) ins key
+    //Speichere mir jedes Char von input anfangend bei i, endend bei position[1] (oben gesetzt) ins key
     //gehe zur nächsten freien Stelle in key
     for (i = position[0] + 1; i < position[1]; i++) {
         key[counter_key++] = messageInput[i];
     }
-    //gehe bis zum Ende des Inputs und speichere mir den Rest in value
+    //gehe bis zum Ende des Inputs und speichere mir den Rest in value,
     //wenn ich bereits in key habe
     if (position[1] != 0) {
         for (i = position[1] + 1; i < strlen(messageInput) - 2; i++) {
@@ -147,10 +147,10 @@ int exec(struct input *in, const int *connection, struct keyValueStore *key_val)
         printf("Disconnected\n");
         return 2;
     } else {
-         printf("Invalid Input\n");
-         if (send(*connection, "Invalid Input\n", sizeof("Invalid Input\n"), 0) == -1) {
-             printf("Error occurred at send\n");
-         }
-         return 0;
+        printf("Invalid Input\n");
+        if (send(*connection, "Invalid Input\n", sizeof("Invalid Input\n"), 0) == -1) {
+            printf("Error occurred at send\n");
+        }
+        return 0;
     }
 }
