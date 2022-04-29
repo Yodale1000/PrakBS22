@@ -109,3 +109,8 @@ Wenn man die Adresse an das Socket binden will, muss man die Felder der Adresse 
 **buffer** Buffer der sendet/der empfängt\
 **number_bytes** Anzahl Bytes, die verschickt/empfangen werden sollen\
 **flags** i.d.R. auf 0 gesetzt\
+
+# Nützliches
+
+**in-> key** An Arrow operator in C allows to access elements in Structures and Unions\
+**Zeiger** Zeiger * sind Variablen, in denen man Speicheradressen speichert. 

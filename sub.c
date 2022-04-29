@@ -7,9 +7,9 @@
 #include "sub.h"
 #include "keyValueStore.h"
 
-#define MAX_INPUT_LENGTH 1000
+#define MAX_INPUT_LENGTH 100
 #define MAX_COMMAND_LENGTH 10
-#define MAX_KEY_LENGTH 10
+#define MAX_KEY_LENGTH 100
 #define MAX_VALUE_LENGTH 100
 
 //Fehler behandeln und Fehlermeldung ausgeben
@@ -95,7 +95,7 @@ void send_data(socket_t *socket, char *data, size_t size) {
 }
 
 // Daten empfangen via TCP
-void recv_data(socket_t *socket, char *data, size_t size_puffer) {
+void recv_data(const socket_t *socket, char *data, size_t size_puffer) {
     unsigned int length;
     //return Wert von recv ist ssize_t ( signed size_t = Größe vom Objekt im Speicher)
     length = recv(*socket, data, size_puffer, 0);
@@ -106,63 +106,67 @@ void recv_data(socket_t *socket, char *data, size_t size_puffer) {
 }
 
 //Input
-struct input *input_func(const int *cfd) {
+struct input *prepare_input(const int *connection) {
     char command[MAX_COMMAND_LENGTH] = {};
     char key[MAX_KEY_LENGTH] = {};
     char value[MAX_VALUE_LENGTH] = {};
-    char buf[MAX_INPUT_LENGTH] = {};
+    char messageInput[MAX_INPUT_LENGTH] = {};
 
     static struct input input;
+    //Position des " " speichern
+    int position[] = {0, 0, 0};
+    //Position in den Strings command, key value speichern
+    int counter_comm, counter_key, counter_val;
+    int i;
+    counter_comm = 0;
+    counter_key = 0;
+    counter_val = 0;
 
-    int separator[] = {0, 0};
-    int x = 0;
-    int y = 0;
-    int z = 0;
+    //Daten empfangen
+    recv(*connection, messageInput, sizeof(messageInput),0);
+    messageInput[strlen(messageInput) - 2] = ' ';
 
-    read(*cfd, buf, sizeof(buf));
-    buf[strlen(buf) - 2] = ' ';
 
-    for (int i = 0; i < strlen(buf); i++) {
-        if (buf[i] == ' ') {
-            separator[x] = i;
-            x++;
+    //solange wir nicht an das Ende des Strings sind, suche nach ' ' , wenn gefunden setze die Position
+    for (i = 0; i < strlen(messageInput); i++) {
+        if (messageInput[i] == ' ') {
+            position[counter_comm++] = i;
         }
     }
-    
-    for (int i = 0; i < separator[0]; i++) {
-        command[i] = buf[i];
+    //suche die Position und speichere den Inhalt in command(jedes char anfangend bei i vom input, endend bei position[0]
+    //gehe zur nächsten freien Stelle in command
+    for (i= 0; i < position[0]; i++) {
+        command[i] = messageInput[i];
     }
-
-
-    for (int i = separator[0] + 1; i < separator[1]; i++) {
-        key[y] = buf[i];
-        y++;
+    //Speichere mir jedes Char von input anfangend bei i, endend bei position[1] ( oben gesetzt) ins key
+    //gehe zur nächsten freien Stelle in key
+    for (i = position[0] + 1; i < position[1]; i++) {
+        key[counter_key++] = messageInput[i];
     }
-
-
-    if (separator[1] != 0) {
-        for (int i = separator[1] + 1; i < strlen(buf) - 2; i++) {
-            value[z] = buf[i];
-            z++;
+    //gehe bis zum Ende des Inputs und speichere mir den Rest in value
+    //wenn ich bereits in key habe
+    if (position[1] != 0) {
+        for (i = position[1] + 1; i < strlen(messageInput) - 2; i++) {
+            value[counter_val++] = messageInput[i];
         }
     }
 
-    strcpy(input.command_s, command);
-    strcpy(input.key_s, key);
-    strcpy(input.value_s, value);
+    strcpy(input.command, command);
+    strcpy(input.key, key);
+    strcpy(input.value, value);
     //printf("%s,%s,%s", command, key, value);
     return &input;
 }
 
 
 int exec(struct input *in, const int *connection, struct keyValueStore *key_val) {
-    if (strcmp(in->command_s, "GET") == 0) {
-        return get(in->key_s, key_val,*connection);
-    } else if (strcmp(in->command_s, "PUT") == 0) {
-        return put(in->key_s, in->value_s, key_val,*connection);
-    } else if (strcmp(in->command_s, "DEL") == 0) {
-        return del(in->key_s, key_val,*connection);
-    } else if (strcmp(in->command_s, "QUIT") == 0) {
+    if (strcmp(in->command, "GET") == 0) {
+        return get(in->key, key_val, *connection);
+    } else if (strcmp(in->command, "PUT") == 0) {
+        return put(in->key, in->value, key_val, *connection);
+    } else if (strcmp(in->command, "DEL") == 0) {
+        return del(in->key, key_val, *connection);
+    } else if (strcmp(in->command, "QUIT") == 0) {
         close(*connection);
         printf("Disconnected\n");
         return 2;

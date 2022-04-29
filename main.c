@@ -22,7 +22,7 @@ int main() {
         send(connection, "Connected\n", sizeof("Connected\n"), 0);
 
         if (fork() == 0) {
-            while (exec(input_func(&connection), &connection, shared_memory) != 2) {
+            while (exec(prepare_input(&connection), &connection, shared_memory) != 2) {
             }
         } else {
             close(connection);

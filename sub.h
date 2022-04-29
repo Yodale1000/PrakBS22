@@ -23,12 +23,12 @@
 #define MAX_VALUE_LENGTH 100
 
 struct input {
-    char command_s[MAX_COMMAND_LENGTH];
-    char key_s[MAX_KEY_LENGTH];
-    char value_s[MAX_VALUE_LENGTH];
+    char command[MAX_COMMAND_LENGTH];
+    char key[MAX_KEY_LENGTH];
+    char value[MAX_VALUE_LENGTH];
 };
 
-struct input *input_func(const int *cfd);
+struct input *prepare_input(const int *connection);
 
 void error_exit(char *message);
 
@@ -79,7 +79,7 @@ void send_data(socket_t *sock, char *data, size_t size);
  * @param data Zeiger auf einen Puffer, in den die Daten gelegt werden sollen
  * @param size Länge des Puffers
  */
-void recv_data(socket_t *sock, char *data, size_t size_puffer);
+void recv_data(const socket_t *sock, char *data, size_t size_puffer);
 
 
 int exec(struct input *in, const int *connection, struct keyValueStore *key_val);
