@@ -20,7 +20,7 @@ int main() {
     //Shared memory erzeugen
     //mmap  dient zur Abbildung zwischen einem Prozessadressraum einer Datei
     struct keyValueStore *data_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
-                   MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+                   MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
     //Server Schleife
     do {
@@ -28,6 +28,7 @@ int main() {
         printf("Client connected\n");
         send(connection, "Connected\n", sizeof("Connected\n"), 0);
 
+        //erstelle Kinderprozesse
         if (fork() == 0) {
             while (exec(prepare_input(&connection), &connection, data_store) != 2) {
             }

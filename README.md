@@ -123,7 +123,12 @@ off_t offset)
 - flags = die Flags steuern die map FUnktion. Wir haben MAP_SHARED, damit alle Prozesse damit arbeiten können
   - und wir haben auch anonymes Mapping.  Anonymes Mapping bedeutet, dass das Mapping mit keiner Datei verbunden ist
 - offset = da startet das Mapping. Bei uns am Anfang: 0;
-- filedes = Filedeskriptor, das gemappt werden soll
+- filedes = Filedeskriptor, das gemappt werden soll\
+  https://www.youtube.com/watch?v=rPV6b8BUwxM
+
+**fork()** erstellt Kinderprozesse. Returnt 0 zu dem Kinde und ProzessId vom Kind zum Elternprozess\
+https://www.youtube.com/watch?v=ss1-REMJ9GA&t=0s
+- fork() == 0 --> das ist ein Kindprozess
 
 ## Ausführen
 
@@ -132,3 +137,6 @@ off_t offset)
 - [ ] Programm starten
 - [ ] telnet <IP-Adresse> 5678
 - [ ] Kommandos eingeben
+
+# Meilenstein 1 ZSF & Abgabe
+- Überschreiben bei put() funktioniert noch nicht
