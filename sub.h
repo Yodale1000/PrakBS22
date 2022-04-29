@@ -10,10 +10,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h>
+//#include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include "keyValueStore.h"
 
 //wir müssen selbst einen Typ für den Socket definieren

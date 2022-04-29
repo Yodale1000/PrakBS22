@@ -25,7 +25,7 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection){
 
     for( i = 0; i<MAX_LENGTH_KVS; i++){
         //key vorhanden-> überschreiben oder key nicht vorhanden-> schreiben
-        if(kvs[i].key == key || strlen(kvs[i].key) == 0){
+        if(strcmp(kvs[i].key,key) == 0 || strlen(kvs[i].key) == 0){
             strcpy(kvs[i].value, value);
             strcpy(kvs[i].key,key);
             //sprintf() wird dazu verwendet, um einen String aus einem Formatstring zu erzeugen
