@@ -80,30 +80,6 @@ void accept_socket(socket_t *sock, socket_t *new_socket) {
     if (*new_socket == -1) { error_exit("Fehler bei accept. Verbindung wird nicht angenommen"); }
 }
 
-void close_socket(socket_t *socket) {
-    if (close(*socket) < 0) {
-        error_exit("Fehler beim Schließen der Verbindung");
-    }
-}
-
-// Daten versenden via TCP
-void send_data(socket_t *socket, char *data, size_t size) {
-    //return wert von send ist Anzahl der Bytes, die gesendet (kann 0 sein) bzw. empfangen wurde
-    //falls <0 ist Fehler aufgetreten
-    if (send(*socket, data, size, 0) == -1)
-        error_exit("Fehler bei send");
-}
-
-// Daten empfangen via TCP
-void recv_data(const socket_t *socket, char *data, size_t size_puffer) {
-    unsigned int length;
-    //return Wert von recv ist ssize_t ( signed size_t = Größe vom Objekt im Speicher)
-    length = recv(*socket, data, size_puffer, 0);
-    if (length > 0)
-        data[length] = '\0';
-    else
-        error_exit("Fehler bei recv()");
-}
 
 //Input
 struct input *prepare_input(const int *connection) {

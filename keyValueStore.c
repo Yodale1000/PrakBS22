@@ -3,6 +3,8 @@
 #include <string.h>
 #include <sys/socket.h>
 #include "keyValueStore.h"
+#include "sub.h"
+
 #define MAX_LENGTH_KVS 100
 
 
@@ -17,7 +19,7 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection){
     if(strcmp(key,"")==0|| strcmp(value,"")==0){
         printf("\nNo key or value ");
         snprintf(message,sizeof(message),"\nNo key found \n");
-        send(connection, message, sizeof (message), 0);
+        send(connection, message, sizeof (message),0);
         return 1;
     }
 
@@ -26,18 +28,16 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection){
         if(kvs[i].key == key || strlen(kvs[i].key) == 0){
             strcpy(kvs[i].value, value);
             strcpy(kvs[i].key,key);
-            //printf("PUT: %s:%s",kvs[i].key,kvs[i].value);
             //sprintf() wird dazu verwendet, um einen String aus einem Formatstring zu erzeugen
             snprintf(message,sizeof(message),"PUT: %s:%s\n",kvs[i].key,kvs[i].value);
             //wir müssen es mitteilen, was passiert ist
-            send(connection, message, sizeof (message), 0);
+            send(connection, message, sizeof (message),0);
             return 0;
         }
     }
-
     return 0;
-
 }
+
 //Die get() Funktion soll einen Schlüsselwert (key) in der Datenhaltung suchen
 //und den hinterlegten Wert (value) zurückgeben. Ist der Wert nicht vorhanden,
 //wird durch einen Rückgabewert <0 darauf aufmerksam gemacht.

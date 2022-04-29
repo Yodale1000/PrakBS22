@@ -61,27 +61,11 @@ void accept_socket(socket_t *sock, socket_t *new_socket);
 
 /**
  *
- * @param socket = Socket, das geschlossen werden soll
+ * @param in unser Input
+ * @param connection Verbindungsdeskriptor, über den die Verbindung stattfindet
+ * @param key_val Datenhaltung, wo den Zugriff auf Daten stattfindet
+ * @return -1 im Fehlerfall
  */
-void close_socket(socket_t *socket);
-
-/**
- *
- * @param sock Filedeskriptor, über den wir die Daten senden wollen
- * @param data ein Zeiger auf den Speicherbereich erwartet, in dem sich die Daten befinden
- * @param size Größe des Pakets das geschickt wird
- */
-void send_data(socket_t *sock, char *data, size_t size);
-
-/**
- *
- * @param sock Socket-Deskriptor der Verbindung
- * @param data Zeiger auf einen Puffer, in den die Daten gelegt werden sollen
- * @param size Länge des Puffers
- */
-void recv_data(const socket_t *sock, char *data, size_t size_puffer);
-
-
 int exec(struct input *in, const int *connection, struct keyValueStore *key_val);
 
 #endif //PRAKBS22_SUB_H

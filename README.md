@@ -114,3 +114,21 @@ Wenn man die Adresse an das Socket binden will, muss man die Felder der Adresse 
 
 **in-> key** An Arrow operator in C allows to access elements in Structures and Unions\
 **Zeiger** Zeiger * sind Variablen, in denen man Speicheradressen speichert. 
+
+**mmap** (void *address, size_t length, int protect, int flags, int filedes,
+off_t offset) 
+- address = gibt eine bevorzugte Startadresse für die Abbildung an.Wenn NULL -> Kernel übernimmt das
+- length =  Anzahl der Bytes, die abgebildet werden sollen.
+- protect = Zugriffsart eingegeben: z.B. PROT_READ = man kann lesen
+- flags = die Flags steuern die map FUnktion. Wir haben MAP_SHARED, damit alle Prozesse damit arbeiten können
+  - und wir haben auch anonymes Mapping.  Anonymes Mapping bedeutet, dass das Mapping mit keiner Datei verbunden ist
+- offset = da startet das Mapping. Bei uns am Anfang: 0;
+- filedes = Filedeskriptor, das gemappt werden soll
+
+## Ausführen
+
+- [ ] VPN  & Doocker an
+- [ ] sich im Terminal mit ssh zu local host verbinden
+- [ ] Programm starten
+- [ ] telnet <IP-Adresse> 5678
+- [ ] Kommandos eingeben
