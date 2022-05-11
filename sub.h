@@ -60,11 +60,11 @@ void accept_socket(socket_t *sock, socket_t *new_socket);
 
 /**
  *
- * @param in unser Input
+ * @param input unser Input
  * @param connection Verbindungsdeskriptor, über den die Verbindung stattfindet
  * @param key_val Datenhaltung, wo den Zugriff auf Daten stattfindet
  * @return -1 im Fehlerfall
  */
-int exec(struct input *in, const int *connection, struct keyValueStore *key_val);
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val);
 
 #endif //PRAKBS22_SUB_H

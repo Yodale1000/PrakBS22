@@ -25,7 +25,6 @@ int main() {
     //Server Schleife
     do {
         accept_socket(&socket, &connection);
-        printf("Client connected\n");
         send(connection, "Connected\n", sizeof("Connected\n"), 0);
 
         //erstelle Kinderprozesse

@@ -78,6 +78,9 @@ void accept_socket(socket_t *sock, socket_t *new_socket) {
     *new_socket = accept(*sock, (struct sockaddr *) &client, &length_address_of_client);
     //Filedeskriptor ist im Fehlerfall -1
     if (*new_socket == -1) { error_exit("Fehler bei accept. Verbindung wird nicht angenommen"); }
+    printf("Connection accepted from %s:%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
+    printf("Client %d connected\n",ntohs(client.sin_port));
+
 }
 
 
@@ -135,16 +138,16 @@ struct input *prepare_input(const int *connection) {
 }
 
 
-int exec(struct input *in, const int *connection, struct keyValueStore *key_val) {
-    if (strcmp(in->command, "GET") == 0) {
-        return get(in->key, key_val, *connection);
-    } else if (strcmp(in->command, "PUT") == 0) {
-        return put(in->key, in->value, key_val, *connection);
-    } else if (strcmp(in->command, "DEL") == 0) {
-        return del(in->key, key_val, *connection);
-    } else if (strcmp(in->command, "QUIT") == 0) {
-        close(*connection);
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val) {
+    if (strcmp(input->command, "GET") == 0) {
+        return get(input->key, key_val, *connection);
+    } else if (strcmp(input->command, "PUT") == 0) {
+        return put(input->key, input->value, key_val, *connection);
+    } else if (strcmp(input->command, "DEL") == 0) {
+        return del(input->key, key_val, *connection);
+    } else if (strcmp(input->command, "QUIT") == 0) {
         printf("Disconnected\n");
+        close(*connection);
         return 2;
     } else {
          printf("Invalid Input\n");

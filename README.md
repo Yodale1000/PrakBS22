@@ -138,16 +138,16 @@ https://www.youtube.com/watch?v=ss1-REMJ9GA&t=0s
 - [ ] telnet <IP-Adresse> 5678
 - [ ] Kommandos eingeben
 
-#include <stdio.h> --> printf etc
-#include <stdlib.h> --> zur Umwandlung von Zahlen, für Speicherverwaltung und Ähnliches
-#include <string.h> --> Funktionen für Strings
-#include <errno.h> --> Fehlercode und Fehler behandeln
-#include <sys/types.h> --> beiinhaltet ssize_t und size_t
-#include <sys/socket.h> --> defines the sockaddr structure
-#include <netinet/in.h> defines the sockaddr_in structure t
-#include <netdb.h> 
-#include <arpa/inet.h> --> byte order Operationen
-#include <unistd.h> --> erlaubt uns Systemaufrufe zu nutzen wie fork()
+ include <stdio.h> --> printf etc\
+include <stdlib.h> --> zur Umwandlung von Zahlen, für Speicherverwaltung und Ähnliches\
+include <string.h> --> Funktionen für Strings\
+include <errno.h> --> Fehlercode und Fehler behandeln\
+include <sys/types.h> --> beiinhaltet ssize_t und size_t\
+include <sys/socket.h> --> defines the sockaddr structure\
+include <netinet/in.h> defines the sockaddr_in structure t\
+include <netdb.h> 
+include <arpa/inet.h> --> byte order Operationen\
+include <unistd.h> --> erlaubt uns Systemaufrufe zu nutzen wie fork()\
 
 
 # Meilenstein 1 ZSF & Abgabe
