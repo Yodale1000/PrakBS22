@@ -8,6 +8,7 @@ int main() {
     //Randezvous Deskriptor, den wir anlegen und von dem eine
     //Verbindung entgegengenommen werden sollen
     int socket;
+
     // Connection Deksriptor, den wir öffnen wenn wir die Verbindung akzeptieren.
     // Randezvous lauscht weiter nach Verbindungen
     int connection;
