@@ -73,6 +73,7 @@ void accept_socket(socket_t *sock, socket_t *new_socket) {
     //die Länge der Struktur, die für Client übergeben wird
     unsigned int length_address_of_client;
 
+
     length_address_of_client = sizeof(client);
     //mit Pointer auf Struktur mit der Infos zum Client durch &client
     *new_socket = accept(*sock, (struct sockaddr *) &client, &length_address_of_client);
