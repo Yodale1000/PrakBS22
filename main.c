@@ -32,6 +32,7 @@ int main() {
         if (fork() == 0) {
             while (exec(prepare_input(&connection), &connection, data_store) != 2) {
             }
+        //Vaterprozess
         } else {
             close(connection);
         }
