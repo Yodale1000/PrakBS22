@@ -125,6 +125,7 @@ off_t offset)
 - offset = da startet das Mapping. Bei uns am Anfang: 0;
 - filedes = Filedeskriptor, das gemappt werden soll\
   https://www.youtube.com/watch?v=rPV6b8BUwxM
+- https://stackoverflow.com/questions/21311080/linux-shared-memory-shmget-vs-mmap
 
 **fork()** erstellt Kinderprozesse. Returnt 0 zu dem Kind und ProzessId vom Kind zum Elternprozess\
 https://www.youtube.com/watch?v=ss1-REMJ9GA&t=0s
