@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include "sub.h"
 #include "keyValueStore.h"
+#include <semaphore.h>
 
 #define MAX_COMMAND_LENGTH 10
 #define MAX_KEY_LENGTH 100
@@ -80,7 +81,7 @@ void accept_socket(const socket_t *sock, socket_t *new_socket) {
     //File deskriptor ist im Fehlerfall -1
     if (*new_socket == -1) { error_exit("Fehler bei accept. Verbindung wird nicht angenommen"); }
     printf("Connection accepted from %s:%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
-    printf("Client %d connected\n",ntohs(client.sin_port));
+    printf("Client %d connected\n", ntohs(client.sin_port));
 
 }
 
@@ -139,13 +140,22 @@ struct input *prepare_input(const int *connection) {
 }
 
 
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val) {
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, sem_t sem) {
     if (strcmp(input->command, "GET") == 0) {
-        return get(input->key, key_val, *connection);
+        sem_wait(&sem);
+        int result = get(input->key, key_val, *connection);
+        sem_post(&sem);
+        return result;
     } else if (strcmp(input->command, "PUT") == 0) {
-        return put(input->key, input->value, key_val, *connection);
+        sem_wait(&sem);
+        int result = put(input->key, input->value, key_val, *connection);
+        sem_post(&sem);
+        return result;
     } else if (strcmp(input->command, "DEL") == 0) {
-        return del(input->key, key_val, *connection);
+        sem_wait(&sem);
+        int result = del(input->key, key_val, *connection);
+        sem_post(&sem);
+        return result;
     } else if (strcmp(input->command, "QUIT") == 0) {
         printf("Disconnected\n");
         close(*connection);
