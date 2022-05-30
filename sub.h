@@ -43,8 +43,8 @@ int create_socket(int domain, int type, int protocol);
  * @param sock ist unser Socket
  * @param address = die Adresse, an der das Socket gebunden ist(aus IP und Port)
  * @param add_len = Größe des Structs
- * **/
-void bind_socket(const socket_t *sock, unsigned short port);
+ * */
+void bind_socket(socket_t *sock, unsigned short port);
 
 /**
  *

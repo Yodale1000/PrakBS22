@@ -154,3 +154,6 @@ include <unistd.h> --> erlaubt uns Systemaufrufe zu nutzen wie fork()\
 # Meilensteil 2
   
   --> The fork way is pretty straighforward : the server socket (the one which accepts the connections) is in the main process, and each time it accepts a new client, it forks a whole new process just to monitor this new client : this new process will be dedicated to it. Since there's one process per client, we don't care if i/o operations are blocking or not.
+
+# Meilenstein 3
+- wir haben semaphore benutzt, um race conditions zu verhindern

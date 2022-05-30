@@ -41,7 +41,7 @@ int create_socket(int domain, int type, int protocol) {
     return new_socket;
 }
 
-void bind_socket(const socket_t *sock, unsigned short port) {
+void bind_socket(socket_t *sock, unsigned short port) {
     //an diese Adresse wird dann an das Socket gebunden
     //die Adresse besteht aus einigen Datenfeldern (siehe Readme)
     struct sockaddr_in address_of_server;
