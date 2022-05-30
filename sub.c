@@ -141,30 +141,46 @@ struct input *prepare_input(const int *connection) {
 
 
 int exec(struct input *input, const int *connection, struct keyValueStore *key_val, sem_t sem) {
-    if (strcmp(input->command, "GET") == 0) {
+    int value;
+    sem_getvalue(&sem, &value);
+    printf("Before:%d\n",value);
+    if (strcmp(input->command, "BEG") == 0){
         sem_wait(&sem);
-        int result = get(input->key, key_val, *connection);
+        sem_getvalue(&sem, &value);
+        printf("After:%d\n",value);
+    }
+    else if (strcmp(input->command, "END") == 0){
         sem_post(&sem);
+    }
+    else if (strcmp(input->command, "GET") == 0) {
+        //sem_wait(&sem);
+        int result = get(input->key, key_val, *connection);
+        //sem_post(&sem);
         return result;
     } else if (strcmp(input->command, "PUT") == 0) {
-        sem_wait(&sem);
+        //sem_wait(&sem);
         int result = put(input->key, input->value, key_val, *connection);
-        sem_post(&sem);
+        //sem_post(&sem);
         return result;
     } else if (strcmp(input->command, "DEL") == 0) {
-        sem_wait(&sem);
+        //sem_wait(&sem);
         int result = del(input->key, key_val, *connection);
-        sem_post(&sem);
+        //sem_post(&sem);
         return result;
     } else if (strcmp(input->command, "QUIT") == 0) {
         printf("Disconnected\n");
         close(*connection);
         return 2;
     } else {
+        printf("%s\n", input->command);
         printf("Invalid Input\n");
         if (send(*connection, "Invalid Input\n", sizeof("Invalid Input\n"), 0) == -1) {
             printf("Error occurred at send\n");
         }
         return 0;
     }
+    sem_getvalue(&sem, &value);
+    printf("End Exec sem value:%d\n",value);
+
+
 }
