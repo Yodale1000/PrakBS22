@@ -59,6 +59,9 @@ void listen_socket(const socket_t *sock);
  */
 void accept_socket(const socket_t *sock, socket_t *new_socket);
 
+void up(int semid);
+void down(int semid);
+
 /**
  *
  * @param input unser Input
@@ -66,6 +69,6 @@ void accept_socket(const socket_t *sock, socket_t *new_socket);
  * @param key_val Datenhaltung, wo den Zugriff auf Daten stattfindet
  * @return -1 im Fehlerfall
  */
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, sem_t sem);
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid);
 
 #endif //PRAKBS22_SUB_H

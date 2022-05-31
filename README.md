@@ -157,3 +157,6 @@ include <unistd.h> --> erlaubt uns Systemaufrufe zu nutzen wie fork()\
 
 # Meilenstein 3
 - wir haben semaphore benutzt, um race conditions zu verhindern
+
+### semop()
+https://man7.org/linux/man-pages/man2/semop.2.html

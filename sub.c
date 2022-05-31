@@ -7,12 +7,15 @@
 #include "sub.h"
 #include "keyValueStore.h"
 #include <semaphore.h>
+#include <sys/sem.h>
 
 #define MAX_COMMAND_LENGTH 10
 #define MAX_KEY_LENGTH 100
 #define MAX_VALUE_LENGTH 100
 #define MAX_INPUT_LENGTH 100
 
+//so eine Art counter, damit der Semaphore weiß, ob es blockieren muss oder nicht
+int has_exclusive_access = 0;
 //Fehler behandeln und Fehlermeldung ausgeben
 void error_exit(char *message) {
     //stderr ist Standardfehlerausgabe
@@ -138,34 +141,56 @@ struct input *prepare_input(const int *connection) {
     //printf("%s,%s,%s", command, key, value);
     return &input;
 }
+//semaphore frei geben
+void up(int semid)
+{
+    struct sembuf semBuftmp;
+    semBuftmp.sem_num = 0;
+    semBuftmp.sem_op = 1;
+    semBuftmp.sem_flg = 0;
+    semop(semid,&semBuftmp,1);
+}
+//semaphore blockieren
+void down(int semid)
+{
+    struct sembuf semBuftmp;
+    semBuftmp.sem_num = 0;
+    semBuftmp.sem_op = -1;
+    semBuftmp.sem_flg = 0;
+    semop(semid,&semBuftmp,1);
+}
 
-
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, sem_t sem) {
-    int value;
-    sem_getvalue(&sem, &value);
-    printf("Before:%d\n",value);
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid) {
     if (strcmp(input->command, "BEG") == 0){
-        sem_wait(&sem);
-        sem_getvalue(&sem, &value);
-        printf("After:%d\n",value);
+        printf("Befehl bekommen (BEG)\n");
+        if (!has_exclusive_access) {
+            printf("BEG:start_transaction\n");
+            down(semid);
+            has_exclusive_access = 1;
+        }
     }
     else if (strcmp(input->command, "END") == 0){
-        sem_post(&sem);
+        printf("Befehl bekommen (END)\n");
+        if (has_exclusive_access) {
+            printf("END:end_transaction\n");
+            has_exclusive_access = 0;
+            up(semid);
+        }
     }
     else if (strcmp(input->command, "GET") == 0) {
-        //sem_wait(&sem);
+        if(!has_exclusive_access) down(semid);
         int result = get(input->key, key_val, *connection);
-        //sem_post(&sem);
+        if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "PUT") == 0) {
-        //sem_wait(&sem);
+        if(!has_exclusive_access) down(semid);
         int result = put(input->key, input->value, key_val, *connection);
-        //sem_post(&sem);
+        if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "DEL") == 0) {
-        //sem_wait(&sem);
+        if(!has_exclusive_access) down(semid);
         int result = del(input->key, key_val, *connection);
-        //sem_post(&sem);
+        if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "QUIT") == 0) {
         printf("Disconnected\n");
@@ -179,8 +204,5 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         }
         return 0;
     }
-    sem_getvalue(&sem, &value);
-    printf("End Exec sem value:%d\n",value);
-
 
 }
