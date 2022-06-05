@@ -8,6 +8,7 @@
 //konstante max Größe für die Strings
 #define MAX_LENGTH_VALUE 10
 #define MAX_LENGTH_KEY 10
+#include "subscriberStore.h"
 
 
 struct keyValueStore{
@@ -18,5 +19,5 @@ void initialize_message_array(char *message, size_t buff_len);
 int put(char* key, char* value, struct keyValueStore *kvs, int connection);
 int get(char* key, struct keyValueStore *kvs, int connection);
 int del(char* key, struct keyValueStore *kvs, int connection);
-
+int sub(char *key, struct keyValueStore *kvs, int connection,int pid,subscriber first_subscriber);
 #endif //PRAKBS22_KEYVALUESTORE_H

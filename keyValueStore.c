@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <malloc.h>
 #include "keyValueStore.h"
-
+#include "subscriberStore.h"
 #define MAX_LENGTH_KVS 100
 void initialize_message_array(char *message, size_t buff_len){
     int i;
@@ -100,4 +100,40 @@ int del(char *key, struct keyValueStore *kvs, int connection) {
     snprintf(message, sizeof(message), "DEL:%s:key_nonexistent\n", key);
     send(connection, message, sizeof(message), 0);
     return -1;
+}
+
+int sub(char *key, struct keyValueStore *kvs, int connection,int pid, subscriber first_subscriber ){
+    int i;
+    int check_key_found=0;
+    char message[50];
+    //leeres Input prüfen
+    if (strcmp(key, "") == 0) {
+        printf("\nNo key");
+        snprintf(message, sizeof(message), "\nNo key found \n");
+        send(connection, message, sizeof(message), 0);
+        return 1;
+    }
+    for (i = 0; i < MAX_LENGTH_KVS; i++) {
+        if (strcmp(kvs[i].key, key) == 0) {
+            check_key_found=1;
+        }
+    }
+    if(check_key_found == 0){
+        snprintf(message, sizeof(message), "Key not found, cannot subscribe");
+        send(connection, message, sizeof(message), 0);
+        return 0;
+    }
+    if (!check_if_subscriber_on_list(key,first_subscriber)) {
+        add_subscriber(key, connection,first_subscriber);
+        snprintf(message, sizeof(message), "SUB: %s\n", key);
+        //wir mÜssen es mitteilen, was passiert ist
+        send(connection, message, sizeof(message), 0);
+        return 0;
+    }
+    else{
+        snprintf(message, sizeof(message), "Bereits subscribed");
+        send(connection, message, sizeof(message), 0);
+        return 0;
+    }
+
 }

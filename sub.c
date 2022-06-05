@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include "sub.h"
 #include "keyValueStore.h"
+#include "subscriberStore.h"
 #include <semaphore.h>
 #include <sys/sem.h>
 
@@ -13,6 +14,23 @@
 #define MAX_KEY_LENGTH 100
 #define MAX_VALUE_LENGTH 100
 #define MAX_INPUT_LENGTH 100
+
+
+//struct msgBuf
+//{
+//    long mType;
+//    int mText[2];
+//} message;
+//
+//
+//typedef struct _msgnode {
+//    int msgid;
+//    struct
+//    struct _msgnode * next;
+//} msglist_node;
+
+//msglist_node * msglist_first = 0;
+
 
 //so eine Art counter, damit der Semaphore weiß, ob es blockieren muss oder nicht
 int has_exclusive_access = 0;
@@ -160,7 +178,8 @@ void down(int semid)
     semop(semid,&semBuftmp,1);
 }
 
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid) {
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int pid, subscriber first_subscriber) {
+    //printf("Hallo\n");
     if (strcmp(input->command, "BEG") == 0){
         printf("Befehl bekommen (BEG)\n");
         if (!has_exclusive_access) {
@@ -185,6 +204,8 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
     } else if (strcmp(input->command, "PUT") == 0) {
         if(!has_exclusive_access) down(semid);
         int result = put(input->key, input->value, key_val, *connection);
+        printf("Ich rufe notify auf");
+        // notify(input->key,*connection, first_subscriber);
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "DEL") == 0) {
@@ -192,9 +213,17 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         int result = del(input->key, key_val, *connection);
         if(!has_exclusive_access) up(semid);
         return result;
-    } else if (strcmp(input->command, "QUIT") == 0) {
+    }else if(strcmp(input->command, "SUB") == 0){
+        if(!has_exclusive_access) down(semid);
+        int result = sub(input->key, key_val, *connection, pid, first_subscriber);
+        if(!has_exclusive_access) up(semid);
+        return result;
+    }
+    else if (strcmp(input->command, "QUIT") == 0) {
         printf("Disconnected\n");
         close(*connection);
+        //lösche die liste wennn QUit
+        clear_subscribers();
         return 2;
     } else {
         printf("%s\n", input->command);

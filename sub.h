@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "keyValueStore.h"
+#include "subscriberStore.h"
 
 //wir müssen selbst einen Typ für den Socket definieren
 #define socket_t int
@@ -69,6 +70,6 @@ void down(int semid);
  * @param key_val Datenhaltung, wo den Zugriff auf Daten stattfindet
  * @return -1 im Fehlerfall
  */
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid);
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int pid, subscriber first_subscriber);
 
 #endif //PRAKBS22_SUB_H
