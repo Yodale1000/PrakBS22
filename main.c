@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <sys/mman.h>
 #include "sub.h"
-#include "subscriberStore.h"
 #include <semaphore.h>
 #include <fcntl.h>
 #include <sys/sem.h>
+#include <sys/msg.h>
 
 #define PORT 5678
 
@@ -27,8 +27,9 @@ int main() {
     //mmap dient zur Abbildung zwischen einem Prozessadressraum einer Datei
     struct keyValueStore *data_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
                                             MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-    subscriber *first_subscriber = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
-                                            MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+
+    int msgid = msgget(IPC_PRIVATE,IPC_CREAT|0777);
+
 
     static sem_t sem;
 //    const char semname[] = "/tmp/mysem";
@@ -47,12 +48,15 @@ int main() {
         send(connection, "Connected\n", sizeof("Connected\n"), 0);
 
         //erstelle Kinderprozesse
-        int pid = fork();
-        if(pid == 0) {
+        if (fork() == 0) {
             int i = 0;
+
+            if (fork() == 0){
+                message_loop(connection, msgid);
+            }
             //mysemp = sem_open(semname, O_CREAT, 0644, 1);
             while (i != 2) {
-                i=exec(prepare_input(&connection), &connection, data_store, semid, pid, *first_subscriber);
+                i=exec(prepare_input(&connection), &connection, data_store, semid, msgid);
             }
             //sem_destroy(&sem);
             //Vaterprozess
