@@ -28,6 +28,14 @@ struct input {
     char value[MAX_VALUE_LENGTH];
 };
 
+struct msgBuf
+{
+    long mtype;
+    char mtext[100];
+    char key[100];
+    int commandtype;
+};
+
 struct input *prepare_input(const int *connection);
 
 void error_exit(char *message);
@@ -72,5 +80,6 @@ void down(int semid);
 int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid);
 
 void message_loop(const int connection, int msgid);
+void add_sub_message_loop(const int connection, int msgid);
 
 #endif //PRAKBS22_SUB_H

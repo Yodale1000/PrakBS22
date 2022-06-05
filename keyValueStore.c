@@ -6,6 +6,8 @@
 #include <malloc.h>
 #include "keyValueStore.h"
 #include "subscriberStore.h"
+#include "sub.h"
+#include <sys/msg.h>
 #define MAX_LENGTH_KVS 100
 void initialize_message_array(char *message, size_t buff_len){
     int i;
@@ -18,7 +20,7 @@ void initialize_message_array(char *message, size_t buff_len){
  * Wenn der Schlüssel bereits vorhanden ist,
  * soll der Wert überschrieben werden.
  * Der Rückgabewert der Funktion könnte Auskunft dazu geben.*/
-int put(char *key, char *value, struct keyValueStore *kvs, int connection) {
+int put(char *key, char *value, struct keyValueStore *kvs, int connection, int msgid) {
     int i;
     char message[50];
     initialize_message_array(message, sizeof(message));
@@ -39,6 +41,9 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection) {
             snprintf(message, sizeof(message), "PUT: %s:%s\n", kvs[i].key, kvs[i].value);
             //wir müssen es mitteilen, was passiert ist
             send(connection, message, sizeof(message), 0);
+            // loop über messageIds in Message List & add_message auf allen msg_ids
+
+            add_message_to_queue(message, key, msgid, 2, 0);
             return 0;
         }
     }
@@ -77,7 +82,7 @@ int get(char *key, struct keyValueStore *kvs, int connection) {
 
 //Die del() Funktion soll einen Schlüsselwert suchen
 //und zusammen mit dem Wert aus der Datenhaltung entfernen.
-int del(char *key, struct keyValueStore *kvs, int connection) {
+int del(char *key, struct keyValueStore *kvs, int connection, int msgid) {
     int i;
     char deleted_key[50];
     initialize_message_array(deleted_key, sizeof(deleted_key));
@@ -94,15 +99,26 @@ int del(char *key, struct keyValueStore *kvs, int connection) {
             strcpy(kvs[i].value, "");
             snprintf(message, sizeof message, "DEL:%s:key_deleted\n", deleted_key);
             send(connection, message, sizeof(message), 0);
+            add_message_to_queue(message, deleted_key, msgid, 2, 0);
             return 0;
         }
     }
     snprintf(message, sizeof(message), "DEL:%s:key_nonexistent\n", key);
+    // message[sizeof message] = '\0';
     send(connection, message, sizeof(message), 0);
     return -1;
 }
 
-int sub(char *key, struct keyValueStore *kvs, int connection,int pid, subscriber first_subscriber ){
+void add_message_to_queue(char *message, char *key, int msgid, int msgtype, int commandtype){
+    struct msgBuf buf;
+    buf.mtype = msgtype;
+    buf.commandtype = commandtype;
+    strcpy(buf.mtext, message);
+    strcpy(buf.key, key);
+    msgsnd(msgid,&buf,sizeof(buf),0);
+}
+
+int sub(char *key, struct keyValueStore *kvs, int connection, int msgid){
     int i;
     int check_key_found=0;
     char message[50];
@@ -123,11 +139,11 @@ int sub(char *key, struct keyValueStore *kvs, int connection,int pid, subscriber
         send(connection, message, sizeof(message), 0);
         return 0;
     }
-    if (!check_if_subscriber_on_list(key,first_subscriber)) {
-        add_subscriber(key, connection,first_subscriber);
+    if (!check_if_subscriber_on_list(key)) {
         snprintf(message, sizeof(message), "SUB: %s\n", key);
         //wir mÜssen es mitteilen, was passiert ist
         send(connection, message, sizeof(message), 0);
+        add_message_to_queue(message, key, msgid, 2, 1);
         return 0;
     }
     else{

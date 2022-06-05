@@ -14,17 +14,17 @@ typedef struct subscriber {
  * @param key
  * @return 1 when key not found and 0 when key found
  */
-int check_if_subscriber_on_list(char *key, subscriber first_subscriber );
+int check_if_subscriber_on_list(char *key);
 /**
  *
  * @param key
  * @param pid
  * füge Subscriber hinzu
  */
-void add_subscriber(char *key, int pid, subscriber first_subscriber  );
+void add_subscriber(char *key);
 /**
  * lösche die Liste
  */
 void clear_subscribers();
-void notify(char *key,int connection, subscriber first_subscriber );
+void notify(char *key, int connection, char *message);
 #endif //PRAKBS22_SUBSCRIBERSTORE_H

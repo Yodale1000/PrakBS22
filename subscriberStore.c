@@ -5,14 +5,13 @@
 #include <stdio.h>
 #include "keyValueStore.h"
 //erstes Element
+
 subscriber *first = 0;
 
 //Prüfe ob ein Subscriber in der Liste ist
-int check_if_subscriber_on_list(char *key, subscriber first_subscriber ) {
+int check_if_subscriber_on_list(char *key) {
     //erstes Element
-    printf("Before");
-    subscriber *pSubscriber = &first_subscriber;
-    printf("After");
+    subscriber *pSubscriber = first;
     //gehe durch die Liste bis zum Ende
     while (pSubscriber != 0) {
         //wenn der übergebene key  nicht mit dem gespeicherten key übereinstimmt, return 1(nichts gefunden)
@@ -23,20 +22,21 @@ int check_if_subscriber_on_list(char *key, subscriber first_subscriber ) {
         pSubscriber = pSubscriber->next;
     }
     //wenn key gefunden bei einem subscriber
+    printf("Subscriber not in list.");
     return 0;
 }
 //ein Subscriber zu der Subscriber Liste hinzufügen
-void add_subscriber(char *key, int pid, subscriber first_subscriber  ) {
-    //
-    subscriber *next= &first_subscriber;
+void add_subscriber(char *key) {
+    subscriber *next= first;
     first=malloc(sizeof(subscriber));
     size_t size = strlen(key) + 1;
     first->key = malloc(size);
     strcpy(first->key, key);
-    first->pid = pid;
+    first->pid = 0;
     first->next = next;
-    printf("\nSubsriber hinzugefügt: %s %d", first->key, first->pid);
+    printf("\nSubsriber hinzugefügt: %s", first->key);
 }
+
 //lösche alles
 void clear_subscribers() {
     //esrter Susbscriber nehmen
@@ -53,26 +53,27 @@ void clear_subscribers() {
         pSubscriber = next;
     }
 }
-void notify(char *key,int connection, subscriber first_subscriber ){
-    printf("\nIch bin in Notify.");
-    char message[200];
-    //send(connection,"\nIch bin in Notify",sizeof message,0);
 
-    subscriber *pSubscriber = &first_subscriber;
 
-    while (pSubscriber != 0) {
-        printf("\nSubscriber key %s %d",pSubscriber->key, pSubscriber->pid);
-        //snprintf(message, sizeof(message), "GET: %d \n", 2);
-        //send(connection,message,sizeof message,0);
-        if (strcmp(key, pSubscriber->key)==0) {
-            printf("\nKey %s changed.", key);
-            //printf("\nIch bin in notify und habe den key");
-            //send(connection,"Ich bin in notify und habe den key",sizeof message,0);
-            int conid= pSubscriber->pid;
-            snprintf(message, sizeof(message), "\nKey %s changed.", key);
-            send(conid, message, sizeof(message), 0);
+void notify(char *key, int connection, char *message){
+    printf("Notify");
+    char final_message [100];
+//    subscriber *pSubscriber = first;
 
-        }
-        pSubscriber = pSubscriber->next;
+    if(check_if_subscriber_on_list(key) == 1){
+//        snprintf(final_message, sizeof(final_message), "\nFound\n");
+//        send(connection, final_message, sizeof(final_message), 0);
+//        printf("\nKey %s changed.", key);
+        snprintf(final_message, sizeof(final_message), "\nSubscriber Message received: %s\n", message);
+        send(connection, final_message, sizeof(final_message), 0);
     }
+//    while (pSubscriber != 0) {
+//        snprintf(final_message, sizeof(final_message), "\nWHile chleife in notify");
+//        send(connection, final_message, sizeof(final_message), 0);
+//        printf("\nSubscriber key %s",pSubscriber->key);
+//        if (strcmp(key, pSubscriber->key)==0) {
+//
+//        }
+//        pSubscriber = pSubscriber->next;
+//    }
 }

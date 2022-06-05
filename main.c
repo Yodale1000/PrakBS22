@@ -8,7 +8,6 @@
 
 #define PORT 5678
 
-
 int main() {
     //Rendezvous Deskriptor, den wir anlegen und von dem eine
     //Verbindung entgegengenommen werden sollen
@@ -28,7 +27,9 @@ int main() {
     struct keyValueStore *data_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
                                             MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
-    int msgid = msgget(IPC_PRIVATE,IPC_CREAT|0777);
+    int msgid;
+
+    printf("%d", msgid);
 
 
     static sem_t sem;
@@ -49,10 +50,18 @@ int main() {
 
         //erstelle Kinderprozesse
         if (fork() == 0) {
+            msgid = msgget(IPC_PRIVATE,IPC_CREAT|0777);
+            if (msgid == -1) {
+                perror("msgget");
+                exit(1);
+            }
+            printf("%d", msgid);
+            // create new message id
             int i = 0;
-
             if (fork() == 0){
-                message_loop(connection, msgid);
+                while(1) {
+                    message_loop(connection, msgid);
+                }
             }
             //mysemp = sem_open(semname, O_CREAT, 0644, 1);
             while (i != 2) {
