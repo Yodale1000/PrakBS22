@@ -36,6 +36,10 @@ struct msgBuf
     int commandtype;
 };
 
+typedef struct messageQueueElement {
+    int msgid;
+    struct messageQueueElement *next;
+} messageQueueElement;
 struct input *prepare_input(const int *connection);
 
 void error_exit(char *message);
@@ -81,5 +85,6 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
 
 void message_loop(const int connection, int msgid);
 void add_sub_message_loop(const int connection, int msgid);
-
+void add_to_queue(int msgid);
+void put_message_from_queue_for_subscriber();
 #endif //PRAKBS22_SUB_H

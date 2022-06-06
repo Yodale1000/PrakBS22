@@ -38,7 +38,7 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection, int m
             strcpy(kvs[i].value, value);
             strcpy(kvs[i].key, key);
             //sprintf() wird dazu verwendet, um einen String aus einem Formatstring zu erzeugen
-            snprintf(message, sizeof(message), "PUT: %s:%s\n", kvs[i].key, kvs[i].value);
+            snprintf(message, sizeof("PUT: %s:%s"), "PUT: %s:%s\n", kvs[i].key, kvs[i].value);
             //wir müssen es mitteilen, was passiert ist
             send(connection, message, sizeof(message), 0);
             // loop über messageIds in Message List & add_message auf allen msg_ids

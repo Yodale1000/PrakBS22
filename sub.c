@@ -187,6 +187,7 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
     } else if (strcmp(input->command, "PUT") == 0) {
         if(!has_exclusive_access) down(semid);
         int result = put(input->key, input->value, key_val, *connection, msgid);
+        put_message_from_queue_for_subscriber();
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "DEL") == 0) {
@@ -198,6 +199,7 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         if(!has_exclusive_access) down(semid);
         int result = sub(input->key, key_val, *connection, msgid);
         // add_to_msglist
+        add_to_queue(msgid);
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "QUIT") == 0) {
@@ -241,3 +243,19 @@ void add_sub_message_loop(const int connection, int msgid) {
 //    send(connection, message, sizeof(message), 0);
 }
 
+struct messageQueueElement *firstElement = 0;
+//Message Queue Methoden
+void add_to_queue(int msgid){
+    struct messageQueueElement *next = firstElement;
+    firstElement = malloc(sizeof(messageQueueElement));
+    firstElement->msgid = msgid;
+    firstElement->next = next;
+}
+
+void put_message_from_queue_for_subscriber(){
+    messageQueueElement *p=firstElement;
+    while(p !=0){
+        add_to_queue(p->msgid);
+        p=p->next;
+    }
+};

@@ -29,7 +29,7 @@ int main() {
 
     int msgid;
 
-    printf("%d", msgid);
+    //printf("%d", msgid);
 
 
     static sem_t sem;
@@ -51,7 +51,7 @@ int main() {
         //erstelle Kinderprozesse
         if (fork() == 0) {
             msgid = msgget(IPC_PRIVATE,IPC_CREAT|0777);
-            if (msgid == -1) {
+            if (msgid < 0) {
                 perror("msgget");
                 exit(1);
             }

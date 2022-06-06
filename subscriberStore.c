@@ -45,7 +45,6 @@ void clear_subscribers() {
     while (pSubscriber != 0) {
         //lösche den key des gefundenen Subscribers
         free(pSubscriber->key);
-        //??
         pSubscriber->pid=0;
         subscriber *next = pSubscriber->next;
         //Lösche seinen Nachbar
