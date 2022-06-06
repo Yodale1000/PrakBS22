@@ -2,10 +2,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <ctype.h>
+#include <malloc.h>
 #include "keyValueStore.h"
 
 #define MAX_LENGTH_KVS 100
-
+void initialize_message_array(char *message, size_t buff_len){
+    int i;
+    for(i=0; i< buff_len;i++){
+        message[i] = '\0';
+    }
+}
 
 /*Die put() Funktion soll einen Wert (value) mit dem Schlüsselwert (key) hinterlegen.
  * Wenn der Schlüssel bereits vorhanden ist,
@@ -14,6 +21,7 @@
 int put(char *key, char *value, struct keyValueStore *kvs, int connection) {
     int i;
     char message[50];
+    initialize_message_array(message, sizeof(message));
     //leeres Input prüfen
     if (strcmp(key, "") == 0 || strcmp(value, "") == 0) {
         printf("\nNo key or value ");
@@ -44,17 +52,16 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection) {
 int get(char *key, struct keyValueStore *kvs, int connection) {
     int i;
     char message[50];
+    initialize_message_array(message, sizeof(message));
     //leeres Input prüfen
     if (strcmp(key, "") == 0) {
-        //printf("\nNo key found ");
-        snprintf(message, sizeof(message), "\nNo key found \n");
+        snprintf(message, sizeof(message), "\nNo key found");
         send(connection, message, sizeof(message), 0);
         return 1;
     }
     for (i = 0; i < MAX_LENGTH_KVS; i++) {
         if (strcmp(kvs[i].key, key) == 0) {
             //printf("GET: %s:%s",kvs[i].key,kvs[i].value);
-
             snprintf(message, sizeof(message), "GET: %s:%s\n", kvs[i].key, kvs[i].value);
             send(connection, message, sizeof(message), 0);
             //etwas gefunden
@@ -72,8 +79,10 @@ int get(char *key, struct keyValueStore *kvs, int connection) {
 //und zusammen mit dem Wert aus der Datenhaltung entfernen.
 int del(char *key, struct keyValueStore *kvs, int connection) {
     int i;
-    char deleted_key[100];
+    char deleted_key[50];
+    initialize_message_array(deleted_key, sizeof(deleted_key));
     char message[50];
+    initialize_message_array(message, sizeof(message));
     if (strcmp(key, "") == 0) {
         printf("\nNo key found\n ");
         return -1;
