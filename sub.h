@@ -15,11 +15,12 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "keyValueStore.h"
+#include "subscriptionStore.h"
 
 //wir müssen selbst einen Typ für den Socket definieren
 #define socket_t int
 #define MAX_COMMAND_LENGTH 10
-#define MAX_KEY_LENGTH 100
+#define MAX_KEY_LENGTH 10
 #define MAX_VALUE_LENGTH 100
 
 struct input {
@@ -27,6 +28,7 @@ struct input {
     char key[MAX_KEY_LENGTH];
     char value[MAX_VALUE_LENGTH];
 };
+
 
 struct input *prepare_input(const int *connection);
 
@@ -69,6 +71,6 @@ void down(int semid);
  * @param key_val Datenhaltung, wo den Zugriff auf Daten stattfindet
  * @return -1 im Fehlerfall
  */
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid);
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, struct subscriptionStore *sub_store, int semid, int pid);
 
 #endif //PRAKBS22_SUB_H

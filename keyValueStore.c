@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <malloc.h>
 #include "keyValueStore.h"
+#include "subscriptionStore.h"
 
 #define MAX_LENGTH_KVS 100
 void initialize_message_array(char *message, size_t buff_len){
@@ -39,6 +40,8 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection) {
             snprintf(message, sizeof(message), "PUT: %s:%s\n", kvs[i].key, kvs[i].value);
             //wir müssen es mitteilen, was passiert ist
             send(connection, message, sizeof(message), 0);
+            addMessage(key, message);
+            printList();
             return 0;
         }
     }
@@ -94,6 +97,7 @@ int del(char *key, struct keyValueStore *kvs, int connection) {
             strcpy(kvs[i].value, "");
             snprintf(message, sizeof message, "DEL:%s:key_deleted\n", deleted_key);
             send(connection, message, sizeof(message), 0);
+            addMessage(key, message);
             return 0;
         }
     }

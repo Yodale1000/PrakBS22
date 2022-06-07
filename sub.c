@@ -5,12 +5,12 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include "sub.h"
+#include "subscriptionStore.h"
 #include "keyValueStore.h"
-#include <semaphore.h>
 #include <sys/sem.h>
 
 #define MAX_COMMAND_LENGTH 10
-#define MAX_KEY_LENGTH 100
+#define MAX_KEY_LENGTH 10
 #define MAX_VALUE_LENGTH 100
 #define MAX_INPUT_LENGTH 100
 
@@ -160,7 +160,7 @@ void down(int semid)
     semop(semid,&semBuftmp,1);
 }
 
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid) {
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, struct subscriptionStore *sub_store, int semid, int pid) {
     if (strcmp(input->command, "BEG") == 0){
         printf("Befehl bekommen (BEG)\n");
         if (!has_exclusive_access) {
@@ -192,6 +192,11 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         int result = del(input->key, key_val, *connection);
         if(!has_exclusive_access) up(semid);
         return result;
+    } else if (strcmp(input->command, "SUB") == 0) {
+        if(!has_exclusive_access) down(semid);
+        int result = subscribe(input->key, pid, sub_store, *connection);
+        if(!has_exclusive_access) up(semid);
+        return result;
     } else if (strcmp(input->command, "QUIT") == 0) {
         printf("Disconnected\n");
         close(*connection);
@@ -204,5 +209,5 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         }
         return 0;
     }
-
+    return -1;
 }

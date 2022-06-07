@@ -4,7 +4,7 @@
 
 #ifndef PRAKBS22_KEYVALUESTORE_H
 #define PRAKBS22_KEYVALUESTORE_H
-
+#include "subscriptionStore.h"
 //konstante max Größe für die Strings
 #define MAX_LENGTH_VALUE 10
 #define MAX_LENGTH_KEY 10

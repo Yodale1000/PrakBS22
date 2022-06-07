@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <sys/mman.h>
-#include "sub.h"
 #include <semaphore.h>
-#include <fcntl.h>
+#include "sub.h"
 #include <sys/sem.h>
+#include "subscriptionStore.h"
+#include "main.h"
 
 #define PORT 5678
 
@@ -13,8 +14,8 @@ int main() {
     //Verbindung entgegengenommen werden sollen
     int socket;
 
-    // Connection Deskriptor, den wir öffnen, wenn wir die Verbindung akzeptieren.
-    // Rendezvous lauscht weiter nach Verbindungen
+    // Connection Deksriptor, den wir öffnen wenn wir die Verbindung akzeptieren.
+    // Randezvous lauscht weiter nach Verbindungen
     int connection;
 
     socket = create_socket(AF_INET, SOCK_STREAM, 0);
@@ -27,6 +28,8 @@ int main() {
     struct keyValueStore *data_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
                                             MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
+    struct subscriptionStore *sub_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
+                                            MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
     static sem_t sem;
 //    const char semname[] = "/tmp/mysem";
@@ -44,12 +47,24 @@ int main() {
         accept_socket(&socket, &connection);
         send(connection, "Connected\n", sizeof("Connected\n"), 0);
 
+        for (int i = 0; i < MAX_LENGTH_SS; i++) {
+            struct node *node = (struct node*)(deleteMessage());
+            if (strcmp(sub_store[i].key, node) == 0) {
+                send(connection, node->message, sizeof(message), 0);
+
+            }
+
+        }
+
+
         //erstelle Kinderprozesse
-        if (fork() == 0) {
+        int pid = fork();
+        printf("%i", pid);
+        if (pid == 0) {
             int i = 0;
             //mysemp = sem_open(semname, O_CREAT, 0644, 1);
             while (i != 2) {
-                i=exec(prepare_input(&connection), &connection, data_store, semid);
+                i=exec(prepare_input(&connection), &connection, data_store, sub_store, semid, getpid());
             }
             //sem_destroy(&sem);
             //Vaterprozess
@@ -57,4 +72,5 @@ int main() {
             close(connection);
         }
     } while (1);
+
 }
