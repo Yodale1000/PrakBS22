@@ -91,7 +91,7 @@ int get(char *key, struct keyValueStore *kvs, int connection) {
 
 //Die del() Funktion soll einen Schlüsselwert suchen
 //und zusammen mit dem Wert aus der Datenhaltung entfernen.
-int del(char *key, struct keyValueStore *kvs, int connection, int msgid) {
+int del(char *key, struct keyValueStore *kvs, int connection, int msgid,struct messageIds *msgIds) {
     int i;
     char deleted_key[50];
     initialize_message_array(deleted_key, sizeof(deleted_key));
@@ -108,7 +108,10 @@ int del(char *key, struct keyValueStore *kvs, int connection, int msgid) {
             strcpy(kvs[i].value, "");
             snprintf(message, sizeof message, "DEL:%s:key_deleted\n", deleted_key);
             send(connection, message, sizeof(message), 0);
-            add_message_to_queue(message, deleted_key, msgid, 2, 0);
+            for(i=0;i<msgIds->ptr;i++){
+                add_message_to_queue(message, key, msgIds->msgids[i], 2, 0);
+            }
+            //add_message_to_queue(message, deleted_key, msgid, 2, 0);
             return 0;
         }
     }
@@ -148,7 +151,7 @@ int sub(char *key, struct keyValueStore *kvs, int connection, int msgid){
         send(connection, message, sizeof(message), 0);
         return 0;
     }
-    if (!check_if_subscriber_on_list(key)) {
+    if (check_if_subscriber_on_list(key) == 0) {
         snprintf(message, sizeof(message), "SUB: %s\n", key);
         //wir mÜssen es mitteilen, was passiert ist
         send(connection, message, sizeof(message), 0);

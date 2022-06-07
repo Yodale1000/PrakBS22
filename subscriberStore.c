@@ -12,29 +12,34 @@ subscriber *first = 0;
 int check_if_subscriber_on_list(char *key) {
     //erstes Element
     subscriber *pSubscriber = first;
+    //ja, nicht in List
+    int subscr_not_in_list=0;
     //gehe durch die Liste bis zum Ende
     while (pSubscriber != 0) {
         //wenn der übergebene key  nicht mit dem gespeicherten key übereinstimmt, return 1(nichts gefunden)
-        if (!strcmp(key, pSubscriber->key)) {
-            return 1;
+        if (strcmp(key, pSubscriber->key) == 0) {
+            //susbcriber on the list
+            subscr_not_in_list=-1;
         }
         //gehe zum nächsten Subscriber und prüfe das Ganze noch mal
         pSubscriber = pSubscriber->next;
     }
     //wenn key gefunden bei einem subscriber
-    printf("Subscriber not in list.");
-    return 0;
+    printf("check_if_subscriber_on_list %d.", subscr_not_in_list);
+    return subscr_not_in_list;
 }
 //ein Subscriber zu der Subscriber Liste hinzufügen
 void add_subscriber(char *key) {
-    subscriber *next= first;
-    first=malloc(sizeof(subscriber));
-    size_t size = strlen(key) + 1;
-    first->key = malloc(size);
-    strcpy(first->key, key);
-    first->pid = 0;
-    first->next = next;
-    printf("\nSubsriber hinzugefügt: %s", first->key);
+    if(check_if_subscriber_on_list(key) == 0) {
+        subscriber *next = first;
+        first = malloc(sizeof(subscriber));
+        size_t size = strlen(key) + 1;
+        first->key = malloc(size);
+        strcpy(first->key, key);
+        first->pid = 0;
+        first->next = next;
+        printf("\nSubsriber hinzugefügt: %s", first->key);
+    }
 }
 
 //lösche alles
@@ -57,9 +62,11 @@ void clear_subscribers() {
 void notify(char *key, int connection, char *message){
     printf("Notify");
     char final_message [100];
+    //initialize_message_array(final_message);
 //    subscriber *pSubscriber = first;
 
-    if(check_if_subscriber_on_list(key) == 1){
+    //wenn subscr in der Liste --> benachrichtge ihn
+    if(check_if_subscriber_on_list(key) == -1){
 //        snprintf(final_message, sizeof(final_message), "\nFound\n");
 //        send(connection, final_message, sizeof(final_message), 0);
 //        printf("\nKey %s changed.", key);

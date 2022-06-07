@@ -43,6 +43,7 @@ typedef struct messageQueueElement {
 
 struct messageIds {
     int msgids[50];
+    //char key[100];
     //ptr zeigt auf die Stelle des Arrays, die frei ist
     int ptr;
 };

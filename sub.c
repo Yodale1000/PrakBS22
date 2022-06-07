@@ -192,7 +192,7 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         return result;
     } else if (strcmp(input->command, "DEL") == 0) {
         if(!has_exclusive_access) down(semid);
-        int result = del(input->key, key_val, *connection, msgid);
+        int result = del(input->key, key_val, *connection, msgid,msgIds);
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "SUB") == 0) {
@@ -246,9 +246,17 @@ void add_sub_message_loop(const int connection, int msgid) {
 
 //Message Queue Methoden
 void add_to_queue(int msgid, struct messageIds *msgIds){
+    int msg_already_in_queue=0;
     int ptr = msgIds->ptr;
-    msgIds->msgids[ptr] = msgid;
-    msgIds->ptr = msgIds->ptr + 1;
+    for(int i=0;i<ptr;i++){
+        if(msgid==msgIds->msgids[ptr]){
+            msg_already_in_queue = -1;
+        }
+    }
+    if(msg_already_in_queue == 0) {
+        msgIds->msgids[ptr] = msgid;
+        msgIds->ptr = msgIds->ptr + 1;
+    }
 //    struct messageQueueElement *next = firstElement;
 //    firstElement = malloc(sizeof(messageQueueElement));
 //    firstElement->msgid = msgid;
