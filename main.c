@@ -2,7 +2,6 @@
 #include <sys/mman.h>
 #include "sub.h"
 #include <semaphore.h>
-#include <fcntl.h>
 #include <sys/sem.h>
 #include <sys/msg.h>
 
@@ -26,7 +25,8 @@ int main() {
     //mmap dient zur Abbildung zwischen einem Prozessadressraum einer Datei
     struct keyValueStore *data_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
                                             MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-
+    struct messageIds *msgIds = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
+                                     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     int msgid;
 
     //printf("%d", msgid);
@@ -65,7 +65,7 @@ int main() {
             }
             //mysemp = sem_open(semname, O_CREAT, 0644, 1);
             while (i != 2) {
-                i=exec(prepare_input(&connection), &connection, data_store, semid, msgid);
+                i=exec(prepare_input(&connection), &connection, data_store, semid, msgid, msgIds);
             }
             //sem_destroy(&sem);
             //Vaterprozess

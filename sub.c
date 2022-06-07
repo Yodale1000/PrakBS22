@@ -17,6 +17,7 @@
 
 //so eine Art counter, damit der Semaphore weiß, ob es blockieren muss oder nicht
 int has_exclusive_access = 0;
+struct messageQueueElement *firstElement = 0;
 //Fehler behandeln und Fehlermeldung ausgeben
 void error_exit(char *message) {
     //stderr ist Standardfehlerausgabe
@@ -162,7 +163,7 @@ void down(int semid)
 }
 
 
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid) {
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid, struct messageIds *msgIds) {
     if (strcmp(input->command, "BEG") == 0){
         printf("Befehl bekommen (BEG)\n");
         if (!has_exclusive_access) {
@@ -186,8 +187,7 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         return result;
     } else if (strcmp(input->command, "PUT") == 0) {
         if(!has_exclusive_access) down(semid);
-        int result = put(input->key, input->value, key_val, *connection, msgid);
-        put_message_from_queue_for_subscriber();
+        int result = put(input->key, input->value, key_val, *connection, msgid, msgIds);
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "DEL") == 0) {
@@ -198,8 +198,8 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
     } else if (strcmp(input->command, "SUB") == 0) {
         if(!has_exclusive_access) down(semid);
         int result = sub(input->key, key_val, *connection, msgid);
-        // add_to_msglist
-        add_to_queue(msgid);
+        // add to Liste mit msgId, für die Client abonniert ist
+        add_to_queue(msgid, msgIds);
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "QUIT") == 0) {
@@ -243,19 +243,15 @@ void add_sub_message_loop(const int connection, int msgid) {
 //    send(connection, message, sizeof(message), 0);
 }
 
-struct messageQueueElement *firstElement = 0;
+
 //Message Queue Methoden
-void add_to_queue(int msgid){
-    struct messageQueueElement *next = firstElement;
-    firstElement = malloc(sizeof(messageQueueElement));
-    firstElement->msgid = msgid;
-    firstElement->next = next;
+void add_to_queue(int msgid, struct messageIds *msgIds){
+    int ptr = msgIds->ptr;
+    msgIds->msgids[ptr] = msgid;
+    msgIds->ptr = msgIds->ptr + 1;
+//    struct messageQueueElement *next = firstElement;
+//    firstElement = malloc(sizeof(messageQueueElement));
+//    firstElement->msgid = msgid;
+//    firstElement->next = next;
 }
 
-void put_message_from_queue_for_subscriber(){
-    messageQueueElement *p=firstElement;
-    while(p !=0){
-        add_to_queue(p->msgid);
-        p=p->next;
-    }
-};

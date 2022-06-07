@@ -27,7 +27,7 @@ struct input {
     char key[MAX_KEY_LENGTH];
     char value[MAX_VALUE_LENGTH];
 };
-
+//Buffer, den wir mit msgsend senden--> für message Queue
 struct msgBuf
 {
     long mtype;
@@ -35,11 +35,18 @@ struct msgBuf
     char key[100];
     int commandtype;
 };
-
+// die msgId, für die ein Client abonniert ist
 typedef struct messageQueueElement {
     int msgid;
     struct messageQueueElement *next;
 } messageQueueElement;
+
+struct messageIds {
+    int msgids[50];
+    //ptr zeigt auf die Stelle des Arrays, die frei ist
+    int ptr;
+};
+
 struct input *prepare_input(const int *connection);
 
 void error_exit(char *message);
@@ -81,10 +88,10 @@ void down(int semid);
  * @param key_val Datenhaltung, wo den Zugriff auf Daten stattfindet
  * @return -1 im Fehlerfall
  */
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid);
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid, struct messageIds *msgIds);
 
 void message_loop(const int connection, int msgid);
 void add_sub_message_loop(const int connection, int msgid);
-void add_to_queue(int msgid);
-void put_message_from_queue_for_subscriber();
+void add_to_queue(int msgid, struct messageIds *msgIds);
+
 #endif //PRAKBS22_SUB_H
