@@ -197,9 +197,8 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         return result;
     } else if (strcmp(input->command, "SUB") == 0) {
         if(!has_exclusive_access) down(semid);
-        int result = sub(input->key, key_val, *connection, msgid);
-        // add to Liste mit msgId, für die Client abonniert ist
-        add_to_queue(msgid, msgIds);
+        int result = sub(input->key, key_val, *connection, msgid,msgIds);
+
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "QUIT") == 0) {
@@ -219,6 +218,7 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
 
 void message_loop(const int connection, int msgid){
     char message[100];
+    initialize_message_array(message,sizeof message);
     struct msgBuf buf;
     msgrcv(msgid,&buf,sizeof(buf),2,0);
     if(buf.commandtype == 1){
@@ -245,18 +245,25 @@ void add_sub_message_loop(const int connection, int msgid) {
 
 
 //Message Queue Methoden
-void add_to_queue(int msgid, struct messageIds *msgIds){
-    int msg_already_in_queue=0;
+void add_to_queue(int msgid, struct messageIds *msgIds, char *key){
     int ptr = msgIds->ptr;
-    for(int i=0;i<ptr;i++){
-        if(msgid==msgIds->msgids[ptr]){
-            msg_already_in_queue = -1;
-        }
-    }
-    if(msg_already_in_queue == 0) {
-        msgIds->msgids[ptr] = msgid;
-        msgIds->ptr = msgIds->ptr + 1;
-    }
+    msgIds->msgids[ptr] = msgid;
+    strcpy(msgIds[ptr].key,key);
+    msgIds->ptr = msgIds->ptr + 1;
+    printf("\nMsgId hinzugefügt: %d, %s", msgIds->msgids[ptr], msgIds[ptr].key);
+
+//    int msg_already_in_queue=0;
+//
+//    for(int i=0;i<ptr;i++){
+//        if(msgid==msgIds->msgids[ptr]){
+//            msg_already_in_queue = -1;
+//        }
+//    }
+//    if(msg_already_in_queue == 0) {
+//        msgIds->msgids[ptr] = msgid;
+//        strcpy(&msgIds->key[ptr],key);
+//        msgIds->ptr = msgIds->ptr + 1;
+//    }
 //    struct messageQueueElement *next = firstElement;
 //    firstElement = malloc(sizeof(messageQueueElement));
 //    firstElement->msgid = msgid;

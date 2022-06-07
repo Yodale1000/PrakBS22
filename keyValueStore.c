@@ -130,10 +130,11 @@ void add_message_to_queue(char *message, char *key, int msgid, int msgtype, int 
     msgsnd(msgid,&buf,sizeof(buf),0);
 }
 
-int sub(char *key, struct keyValueStore *kvs, int connection, int msgid){
+int sub(char *key, struct keyValueStore *kvs, int connection, int msgid, struct messageIds *msgIds){
     int i;
     int check_key_found=0;
     char message[50];
+    initialize_message_array(message, sizeof message);
     //leeres Input prüfen
     if (strcmp(key, "") == 0) {
         printf("\nNo key");
@@ -151,11 +152,17 @@ int sub(char *key, struct keyValueStore *kvs, int connection, int msgid){
         send(connection, message, sizeof(message), 0);
         return 0;
     }
-    if (check_if_subscriber_on_list(key) == 0) {
+    //wenn nicht on the list
+    int res = check_if_in_list(msgIds,key,msgid);
+    printf(" \ncheck_if_in_list(msgIds,key,msgid): %d", res);
+    if (check_if_in_list(msgIds, key, msgid) == 0) {
         snprintf(message, sizeof(message), "SUB: %s\n", key);
         //wir mÜssen es mitteilen, was passiert ist
         send(connection, message, sizeof(message), 0);
-        add_message_to_queue(message, key, msgid, 2, 1);
+        //add_subscriber methode die das sturct msgIds befüllt -> msgId und key speichern
+        // add to Liste mit msgId, für die Client abonniert ist
+        add_to_queue(msgid, msgIds,key);
+        //add_message_to_queue(message, key, msgid, 2, 1);
         return 0;
     }
     else{
@@ -166,10 +173,19 @@ int sub(char *key, struct keyValueStore *kvs, int connection, int msgid){
 
 }
 
-void put_message_from_queue_for_subscriber(messageQueueElement *firstElement){
-//    messageQueueElement *p=firstElement;
-//    while(p !=0){
-//        add_to_queue(p->msgid);
-//        p=p->next;
-//    }
+int check_if_in_list(struct messageIds *msgIds, char *key, int msgid){
+    int ptr = msgIds->ptr;
+    printf("\nPTR vor Schleife: %d",ptr);
+    for(int i=0;i<ptr;i++){
+        printf("\nPTR in Schleife: %d",ptr);
+        //gefunden strcmp(&msgIds->key[ptr],key) == 0 &&
+        printf("\nMsgId= %d,msgids[ptr] = %d ", msgid, msgIds->msgids[ptr]);
+        if( msgid == msgIds->msgids[ptr]){
+            printf("\ngefunden strcmp(&msgIds->key[ptr],key) == 0");
+            return -1;
+        }
+    }
+    //not in list
+    return 0;
 }
+

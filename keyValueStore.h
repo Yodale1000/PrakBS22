@@ -21,6 +21,7 @@ int put(char* key, char* value, struct keyValueStore *kvs, int connection,int ms
 int get(char* key, struct keyValueStore *kvs, int connection);
 int del(char* key, struct keyValueStore *kvs, int connection, int msgid,struct messageIds *msgIds);
 void add_message_to_queue(char *message, char *key, int msgid, int msgtype, int commandtype);
-int sub(char *key, struct keyValueStore *kvs, int connection, int msgid);
+int sub(char *key, struct keyValueStore *kvs, int connection, int msgid,struct messageIds *msgIds);
 void put_message_from_queue_for_subscriber();
+int check_if_in_list(struct messageIds *msgIds, char *key, int msgid);
 #endif //PRAKBS22_KEYVALUESTORE_H

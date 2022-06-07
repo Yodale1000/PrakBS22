@@ -62,7 +62,7 @@ void clear_subscribers() {
 void notify(char *key, int connection, char *message){
     printf("Notify");
     char final_message [100];
-    //initialize_message_array(final_message);
+    initialize_message_array(final_message, sizeof final_message);
 //    subscriber *pSubscriber = first;
 
     //wenn subscr in der Liste --> benachrichtge ihn

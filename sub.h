@@ -43,7 +43,7 @@ typedef struct messageQueueElement {
 
 struct messageIds {
     int msgids[50];
-    //char key[100];
+    char key[100];
     //ptr zeigt auf die Stelle des Arrays, die frei ist
     int ptr;
 };
@@ -93,6 +93,6 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
 
 void message_loop(const int connection, int msgid);
 void add_sub_message_loop(const int connection, int msgid);
-void add_to_queue(int msgid, struct messageIds *msgIds);
+void add_to_queue(int msgid, struct messageIds *msgIds,char *key);
 
 #endif //PRAKBS22_SUB_H
