@@ -42,9 +42,8 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection, int m
             //wir müssen es mitteilen, was passiert ist
             send(connection, message, sizeof(message), 0);
             // loop über subscription in Message List & add_message auf allen msg_ids
-            for(i=0;i<subscriptions->ptr;i++){
-                add_message_to_queue(message, key, subscriptions->subscriptions[i], 2, 0);
-            }
+            notifyNew(message, key, subscriptions);
+
 
 //            messageQueueElement *p=firstElement;
 //            while(p !=0){
@@ -162,11 +161,22 @@ int sub(char *key, struct keyValueStore *kvs, int connection, int msgid, struct 
         //add_subscriber methode die das sturct subscriptions befüllt -> msgId und key speichern
         // add to Liste mit msgId, für die Client abonniert ist
         add_to_queue(msgid, subscriptions,key);
+//        int ptr = subscriptions->ptr;
+//        subscriptions->subscriptions[ptr] = msgid;
+//        strcpy(subscriptions[ptr].key,key);
+//        subscriptions->ptr = subscriptions->ptr + 1;
+//        int ptr = subscriptions->ptr;
+//        for(i=0;i<ptr;i++){
+//            printf("\nsub MsgId hinzugefügt: %d, %s", subscriptions->subscriptions[i], subscriptions[ptr].key);
+//            printf("\nsub add_to_queue MsgId= %d,subscriptions[ptr] = %d ", msgid, subscriptions->subscriptions[i]);
+//            printf("\nsub add_to_queue subscriptions->key[ptr]: %s", subscriptions[i].key);
+//            printf("\nsub subscriptions->ptr: %d", subscriptions->ptr);
+//        }
         //add_message_to_queue(message, key, msgid, 2, 1);
         return 0;
     }
     else{
-        snprintf(message, sizeof(message), "Bereits subscribed");
+        snprintf(message, sizeof(message), "Bereits subscribed\n");
         send(connection, message, sizeof(message), 0);
         return 0;
     }
@@ -175,17 +185,26 @@ int sub(char *key, struct keyValueStore *kvs, int connection, int msgid, struct 
 
 int check_if_in_list(struct subscription *subscriptions, char *key, int msgid){
     int ptr = subscriptions->ptr;
-    printf("\nPTR vor Schleife: %d",ptr);
+//    printf("\nPTR vor Schleife: %d",ptr);
     for(int i=0;i<ptr;i++){
-        printf("\nPTR in Schleife: %d",ptr);
-        //gefunden strcmp(&subscriptions->key[ptr],key) == 0 &&
-        printf("\nMsgId= %d,subscriptions[ptr] = %d ", msgid, subscriptions->subscriptions[ptr]);
-        if( msgid == subscriptions->subscriptions[ptr]){
-            printf("\ngefunden strcmp(&subscriptions->key[ptr],key) == 0");
+//        printf("\nPTR in Schleife: %d",ptr);
+//        //gefunden strcmp(&subscriptions->key[ptr],key) == 0 &&
+//        printf("\nMsgId= %d,subscriptions[ptr] = %d ", msgid, subscriptions->subscriptions[i]);
+//        printf("\nsubscriptions->key[ptr]: %s", subscriptions[i].key);
+        if( msgid == subscriptions->subscriptions[i] && strcmp(subscriptions[i].key,key) == 0){
+//            printf("\ngefunden strcmp(&subscriptions->key[ptr],key) == 0");
             return -1;
         }
     }
     //not in list
     return 0;
+}
+
+int notifyNew(char *message, char *key, struct subscription *subscriptions){
+    for(int i=0;i<subscriptions->ptr;i++){
+        if(strcmp(subscriptions[i].key,key) == 0) {
+            add_message_to_queue(message, key, subscriptions->subscriptions[i], 2, 0);
+        }
+    }
 }
 

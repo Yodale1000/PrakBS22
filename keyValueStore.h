@@ -24,4 +24,5 @@ void add_message_to_queue(char *message, char *key, int msgid, int msgtype, int 
 int sub(char *key, struct keyValueStore *kvs, int connection, int msgid,struct subscription *subscriptions);
 void put_message_from_queue_for_subscriber();
 int check_if_in_list(struct subscription *subscriptions, char *key, int msgid);
+int notifyNew(char *message, char *key, struct subscription *subscriptions);
 #endif //PRAKBS22_KEYVALUESTORE_H

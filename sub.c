@@ -163,7 +163,7 @@ void down(int semid)
 }
 
 
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid, struct subscription *subscriptions) {
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid, struct subscription *subscriptionsStore) {
     if (strcmp(input->command, "BEG") == 0){
         printf("Befehl bekommen (BEG)\n");
         if (!has_exclusive_access) {
@@ -187,17 +187,17 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         return result;
     } else if (strcmp(input->command, "PUT") == 0) {
         if(!has_exclusive_access) down(semid);
-        int result = put(input->key, input->value, key_val, *connection, msgid, subscriptions);
+        int result = put(input->key, input->value, key_val, *connection, msgid, subscriptionsStore);
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "DEL") == 0) {
         if(!has_exclusive_access) down(semid);
-        int result = del(input->key, key_val, *connection, msgid,subscriptions);
+        int result = del(input->key, key_val, *connection, msgid,subscriptionsStore);
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "SUB") == 0) {
         if(!has_exclusive_access) down(semid);
-        int result = sub(input->key, key_val, *connection, msgid,subscriptions);
+        int result = sub(input->key, key_val, *connection, msgid, subscriptionsStore);
 
         if(!has_exclusive_access) up(semid);
         return result;
@@ -221,15 +221,16 @@ void message_loop(const int connection, int msgid){
     initialize_message_array(message,sizeof message);
     struct msgBuf buf;
     msgrcv(msgid,&buf,sizeof(buf),2,0);
-    if(buf.commandtype == 1){
+    snprintf(message, sizeof(message), "\nMessage received: %s\n", buf.mtext);
+    send(connection, message, sizeof(message), 0);
+    /*if(buf.commandtype == 1){
         snprintf(message, sizeof(message), "\nAdd subscriber: %s\n", buf.key);
         send(connection, message, sizeof(message), 0);
         add_subscriber(buf.key);
     } else if (buf.commandtype == 0){
         notify(buf.key, connection, buf.mtext);
-    }
-    snprintf(message, sizeof(message), "\nMessage received: %s\n", buf.mtext);
-    send(connection, message, sizeof(message), 0);
+    }*/
+
 }
 
 
@@ -251,6 +252,8 @@ void add_to_queue(int msgid, struct subscription *subscriptions, char *key){
     strcpy(subscriptions[ptr].key,key);
     subscriptions->ptr = subscriptions->ptr + 1;
     printf("\nMsgId hinzugefügt: %d, %s", subscriptions->subscriptions[ptr], subscriptions[ptr].key);
+    printf("\nadd_to_queue MsgId= %d,subscriptions[ptr] = %d ", msgid, subscriptions->subscriptions[ptr]);
+    printf("\nadd_to_queue subscriptions->key[ptr]: %s", subscriptions[ptr].key);
 
 //    int msg_already_in_queue=0;
 //
