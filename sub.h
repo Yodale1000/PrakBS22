@@ -41,8 +41,8 @@ typedef struct messageQueueElement {
     struct messageQueueElement *next;
 } messageQueueElement;
 
-struct messageIds {
-    int msgids[50];
+struct subscription {
+    int subscriptions[50];
     char key[100];
     //ptr zeigt auf die Stelle des Arrays, die frei ist
     int ptr;
@@ -89,10 +89,10 @@ void down(int semid);
  * @param key_val Datenhaltung, wo den Zugriff auf Daten stattfindet
  * @return -1 im Fehlerfall
  */
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid, struct messageIds *msgIds);
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid, struct subscription *subscriptions);
 
 void message_loop(const int connection, int msgid);
 void add_sub_message_loop(const int connection, int msgid);
-void add_to_queue(int msgid, struct messageIds *msgIds,char *key);
+void add_to_queue(int msgid, struct subscription *subscriptions, char *key);
 
 #endif //PRAKBS22_SUB_H

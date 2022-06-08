@@ -163,7 +163,7 @@ void down(int semid)
 }
 
 
-int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid, struct messageIds *msgIds) {
+int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid, struct subscription *subscriptions) {
     if (strcmp(input->command, "BEG") == 0){
         printf("Befehl bekommen (BEG)\n");
         if (!has_exclusive_access) {
@@ -187,17 +187,17 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
         return result;
     } else if (strcmp(input->command, "PUT") == 0) {
         if(!has_exclusive_access) down(semid);
-        int result = put(input->key, input->value, key_val, *connection, msgid, msgIds);
+        int result = put(input->key, input->value, key_val, *connection, msgid, subscriptions);
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "DEL") == 0) {
         if(!has_exclusive_access) down(semid);
-        int result = del(input->key, key_val, *connection, msgid,msgIds);
+        int result = del(input->key, key_val, *connection, msgid,subscriptions);
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "SUB") == 0) {
         if(!has_exclusive_access) down(semid);
-        int result = sub(input->key, key_val, *connection, msgid,msgIds);
+        int result = sub(input->key, key_val, *connection, msgid,subscriptions);
 
         if(!has_exclusive_access) up(semid);
         return result;
@@ -245,24 +245,24 @@ void add_sub_message_loop(const int connection, int msgid) {
 
 
 //Message Queue Methoden
-void add_to_queue(int msgid, struct messageIds *msgIds, char *key){
-    int ptr = msgIds->ptr;
-    msgIds->msgids[ptr] = msgid;
-    strcpy(msgIds[ptr].key,key);
-    msgIds->ptr = msgIds->ptr + 1;
-    printf("\nMsgId hinzugefügt: %d, %s", msgIds->msgids[ptr], msgIds[ptr].key);
+void add_to_queue(int msgid, struct subscription *subscriptions, char *key){
+    int ptr = subscriptions->ptr;
+    subscriptions->subscriptions[ptr] = msgid;
+    strcpy(subscriptions[ptr].key,key);
+    subscriptions->ptr = subscriptions->ptr + 1;
+    printf("\nMsgId hinzugefügt: %d, %s", subscriptions->subscriptions[ptr], subscriptions[ptr].key);
 
 //    int msg_already_in_queue=0;
 //
 //    for(int i=0;i<ptr;i++){
-//        if(msgid==msgIds->msgids[ptr]){
+//        if(msgid==subscriptions->subscriptions[ptr]){
 //            msg_already_in_queue = -1;
 //        }
 //    }
 //    if(msg_already_in_queue == 0) {
-//        msgIds->msgids[ptr] = msgid;
-//        strcpy(&msgIds->key[ptr],key);
-//        msgIds->ptr = msgIds->ptr + 1;
+//        subscriptions->subscriptions[ptr] = msgid;
+//        strcpy(&subscriptions->key[ptr],key);
+//        subscriptions->ptr = subscriptions->ptr + 1;
 //    }
 //    struct messageQueueElement *next = firstElement;
 //    firstElement = malloc(sizeof(messageQueueElement));

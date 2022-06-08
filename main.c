@@ -25,7 +25,7 @@ int main() {
     //mmap dient zur Abbildung zwischen einem Prozessadressraum einer Datei
     struct keyValueStore *data_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
                                             MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-    struct messageIds *msgIds = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
+    struct subscription *subscriptions = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
                                      MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     int msgid;
 
@@ -65,7 +65,7 @@ int main() {
             }
             //mysemp = sem_open(semname, O_CREAT, 0644, 1);
             while (i != 2) {
-                i=exec(prepare_input(&connection), &connection, data_store, semid, msgid, msgIds);
+                i=exec(prepare_input(&connection), &connection, data_store, semid, msgid, subscriptions);
             }
             //sem_destroy(&sem);
             //Vaterprozess

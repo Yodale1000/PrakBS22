@@ -20,7 +20,7 @@ void initialize_message_array(char *message, size_t buff_len){
  * Wenn der Schlüssel bereits vorhanden ist,
  * soll der Wert überschrieben werden.
  * Der Rückgabewert der Funktion könnte Auskunft dazu geben.*/
-int put(char *key, char *value, struct keyValueStore *kvs, int connection, int msgid, struct messageIds *msgIds) {
+int put(char *key, char *value, struct keyValueStore *kvs, int connection, int msgid, struct subscription *subscriptions) {
     int i;
     char message[50];
     initialize_message_array(message, sizeof(message));
@@ -41,9 +41,9 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection, int m
             snprintf(message, sizeof("PUT: %s:%s"), "PUT: %s:%s\n", kvs[i].key, kvs[i].value);
             //wir müssen es mitteilen, was passiert ist
             send(connection, message, sizeof(message), 0);
-            // loop über messageIds in Message List & add_message auf allen msg_ids
-            for(i=0;i<msgIds->ptr;i++){
-                add_message_to_queue(message, key, msgIds->msgids[i], 2, 0);
+            // loop über subscription in Message List & add_message auf allen msg_ids
+            for(i=0;i<subscriptions->ptr;i++){
+                add_message_to_queue(message, key, subscriptions->subscriptions[i], 2, 0);
             }
 
 //            messageQueueElement *p=firstElement;
@@ -91,7 +91,7 @@ int get(char *key, struct keyValueStore *kvs, int connection) {
 
 //Die del() Funktion soll einen Schlüsselwert suchen
 //und zusammen mit dem Wert aus der Datenhaltung entfernen.
-int del(char *key, struct keyValueStore *kvs, int connection, int msgid,struct messageIds *msgIds) {
+int del(char *key, struct keyValueStore *kvs, int connection, int msgid,struct subscription *subscriptions) {
     int i;
     char deleted_key[50];
     initialize_message_array(deleted_key, sizeof(deleted_key));
@@ -108,8 +108,8 @@ int del(char *key, struct keyValueStore *kvs, int connection, int msgid,struct m
             strcpy(kvs[i].value, "");
             snprintf(message, sizeof message, "DEL:%s:key_deleted\n", deleted_key);
             send(connection, message, sizeof(message), 0);
-            for(i=0;i<msgIds->ptr;i++){
-                add_message_to_queue(message, key, msgIds->msgids[i], 2, 0);
+            for(i=0;i<subscriptions->ptr;i++){
+                add_message_to_queue(message, key, subscriptions->subscriptions[i], 2, 0);
             }
             //add_message_to_queue(message, deleted_key, msgid, 2, 0);
             return 0;
@@ -130,7 +130,7 @@ void add_message_to_queue(char *message, char *key, int msgid, int msgtype, int 
     msgsnd(msgid,&buf,sizeof(buf),0);
 }
 
-int sub(char *key, struct keyValueStore *kvs, int connection, int msgid, struct messageIds *msgIds){
+int sub(char *key, struct keyValueStore *kvs, int connection, int msgid, struct subscription *subscriptions){
     int i;
     int check_key_found=0;
     char message[50];
@@ -153,15 +153,15 @@ int sub(char *key, struct keyValueStore *kvs, int connection, int msgid, struct 
         return 0;
     }
     //wenn nicht on the list
-    int res = check_if_in_list(msgIds,key,msgid);
-    printf(" \ncheck_if_in_list(msgIds,key,msgid): %d", res);
-    if (check_if_in_list(msgIds, key, msgid) == 0) {
+    int res = check_if_in_list(subscriptions,key,msgid);
+    printf(" \ncheck_if_in_list(subscriptions,key,msgid): %d", res);
+    if (check_if_in_list(subscriptions, key, msgid) == 0) {
         snprintf(message, sizeof(message), "SUB: %s\n", key);
         //wir mÜssen es mitteilen, was passiert ist
         send(connection, message, sizeof(message), 0);
-        //add_subscriber methode die das sturct msgIds befüllt -> msgId und key speichern
+        //add_subscriber methode die das sturct subscriptions befüllt -> msgId und key speichern
         // add to Liste mit msgId, für die Client abonniert ist
-        add_to_queue(msgid, msgIds,key);
+        add_to_queue(msgid, subscriptions,key);
         //add_message_to_queue(message, key, msgid, 2, 1);
         return 0;
     }
@@ -173,15 +173,15 @@ int sub(char *key, struct keyValueStore *kvs, int connection, int msgid, struct 
 
 }
 
-int check_if_in_list(struct messageIds *msgIds, char *key, int msgid){
-    int ptr = msgIds->ptr;
+int check_if_in_list(struct subscription *subscriptions, char *key, int msgid){
+    int ptr = subscriptions->ptr;
     printf("\nPTR vor Schleife: %d",ptr);
     for(int i=0;i<ptr;i++){
         printf("\nPTR in Schleife: %d",ptr);
-        //gefunden strcmp(&msgIds->key[ptr],key) == 0 &&
-        printf("\nMsgId= %d,msgids[ptr] = %d ", msgid, msgIds->msgids[ptr]);
-        if( msgid == msgIds->msgids[ptr]){
-            printf("\ngefunden strcmp(&msgIds->key[ptr],key) == 0");
+        //gefunden strcmp(&subscriptions->key[ptr],key) == 0 &&
+        printf("\nMsgId= %d,subscriptions[ptr] = %d ", msgid, subscriptions->subscriptions[ptr]);
+        if( msgid == subscriptions->subscriptions[ptr]){
+            printf("\ngefunden strcmp(&subscriptions->key[ptr],key) == 0");
             return -1;
         }
     }
