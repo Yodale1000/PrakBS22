@@ -198,7 +198,6 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
     } else if (strcmp(input->command, "SUB") == 0) {
         if(!has_exclusive_access) down(semid);
         int result = sub(input->key, key_val, *connection, msgid, subscriptionsStore);
-
         if(!has_exclusive_access) up(semid);
         return result;
     } else if (strcmp(input->command, "QUIT") == 0) {
@@ -215,61 +214,17 @@ int exec(struct input *input, const int *connection, struct keyValueStore *key_v
     }
 
 }
-
+// empfängt die Nachrichten und gibt sie aus
 void message_loop(const int connection, int msgid){
     char message[100];
     initialize_message_array(message,sizeof message);
     struct msgBuf buf;
-    msgrcv(msgid,&buf,sizeof(buf),2,0);
-    snprintf(message, sizeof(message), "\nMessage received: %s\n", buf.mtext);
+    //einkommende Nachricht empfangen und in dem Buffer schreiben (da speichern wir die einkommenden Nachrichten)
+    //msgrcv ist Systemaufruf zum Empfang der Nachricht
+    //msgtyp = 5 kennzeichnet, dass es sich um die SUB Command handelt
+    msgrcv(msgid,&buf,sizeof(buf),5,0);
+    snprintf(message, sizeof(message), "Notification: %s\n", buf.mtext);
     send(connection, message, sizeof(message), 0);
-    /*if(buf.commandtype == 1){
-        snprintf(message, sizeof(message), "\nAdd subscriber: %s\n", buf.key);
-        send(connection, message, sizeof(message), 0);
-        add_subscriber(buf.key);
-    } else if (buf.commandtype == 0){
-        notify(buf.key, connection, buf.mtext);
-    }*/
-
 }
 
-
-void add_sub_message_loop(const int connection, int msgid) {
-//    send(connection, "add_sub_message_loop", sizeof("add_sub_message_loop"), 0);
-//    char message[100];
-//    struct msgBuf buf;
-//    msgrcv(msgid, &buf, sizeof(buf), 3, 0);
-//    add_subscriber(buf.key);
-//    snprintf(message, sizeof(message), "\nSub Add Message received: %s\n", buf.mtext);
-//    send(connection, message, sizeof(message), 0);
-}
-
-
-//Message Queue Methoden
-void add_to_queue(int msgid, struct subscription *subscriptions, char *key){
-    int ptr = subscriptions->ptr;
-    subscriptions->subscriptions[ptr] = msgid;
-    strcpy(subscriptions[ptr].key,key);
-    subscriptions->ptr = subscriptions->ptr + 1;
-    printf("\nMsgId hinzugefügt: %d, %s", subscriptions->subscriptions[ptr], subscriptions[ptr].key);
-    printf("\nadd_to_queue MsgId= %d,subscriptions[ptr] = %d ", msgid, subscriptions->subscriptions[ptr]);
-    printf("\nadd_to_queue subscriptions->key[ptr]: %s", subscriptions[ptr].key);
-
-//    int msg_already_in_queue=0;
-//
-//    for(int i=0;i<ptr;i++){
-//        if(msgid==subscriptions->subscriptions[ptr]){
-//            msg_already_in_queue = -1;
-//        }
-//    }
-//    if(msg_already_in_queue == 0) {
-//        subscriptions->subscriptions[ptr] = msgid;
-//        strcpy(&subscriptions->key[ptr],key);
-//        subscriptions->ptr = subscriptions->ptr + 1;
-//    }
-//    struct messageQueueElement *next = firstElement;
-//    firstElement = malloc(sizeof(messageQueueElement));
-//    firstElement->msgid = msgid;
-//    firstElement->next = next;
-}
 

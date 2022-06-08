@@ -1,85 +1,45 @@
 #include <string.h>
-#include <stdlib.h>
-#include "subscriberStore.h"
-#include <sys/socket.h>
 #include <stdio.h>
-#include "keyValueStore.h"
-//erstes Element
+#include <sys/msg.h>
+#include "sub.h"
 
-subscriber *first = 0;
-
-//Prüfe ob ein Subscriber in der Liste ist
-int check_if_subscriber_on_list(char *key) {
-    //erstes Element
-    subscriber *pSubscriber = first;
-    //ja, nicht in List
-    int subscr_not_in_list=0;
-    //gehe durch die Liste bis zum Ende
-    while (pSubscriber != 0) {
-        //wenn der übergebene key  nicht mit dem gespeicherten key übereinstimmt, return 1(nichts gefunden)
-        if (strcmp(key, pSubscriber->key) == 0) {
-            //susbcriber on the list
-            subscr_not_in_list=-1;
+//prüft ob ein key und ein msgid in der Loste der subscriptions sind. Wenn ja -> -1 , wenn nein --> 0
+int check_if_in_list(struct subscription *subscriptions, char *key, int msgid){
+    int ptr = subscriptions->ptr;
+    for(int i=0;i<ptr;i++){
+        if( msgid == subscriptions->subscriptions[i] && strcmp(subscriptions[i].key,key) == 0){
+            //in list
+            return -1;
         }
-        //gehe zum nächsten Subscriber und prüfe das Ganze noch mal
-        pSubscriber = pSubscriber->next;
     }
-    //wenn key gefunden bei einem subscriber
-    printf("check_if_subscriber_on_list %d.", subscr_not_in_list);
-    return subscr_not_in_list;
-}
-//ein Subscriber zu der Subscriber Liste hinzufügen
-void add_subscriber(char *key) {
-    if(check_if_subscriber_on_list(key) == 0) {
-        subscriber *next = first;
-        first = malloc(sizeof(subscriber));
-        size_t size = strlen(key) + 1;
-        first->key = malloc(size);
-        strcpy(first->key, key);
-        first->pid = 0;
-        first->next = next;
-        printf("\nSubsriber hinzugefügt: %s", first->key);
-    }
+    //not in list
+    return 0;
 }
 
-//lösche alles
-void clear_subscribers() {
-    //esrter Susbscriber nehmen
-    subscriber *pSubscriber = first;
-    //gehe durch die Liste bis zum Ende
-    while (pSubscriber != 0) {
-        //lösche den key des gefundenen Subscribers
-        free(pSubscriber->key);
-        pSubscriber->pid=0;
-        subscriber *next = pSubscriber->next;
-        //Lösche seinen Nachbar
-        free(pSubscriber);
-        pSubscriber = next;
-    }
+//Message Queue Methoden
+void add_to_queue(int msgid, struct subscription *subscriptions, char *key){
+    int ptr = subscriptions->ptr;
+    subscriptions->subscriptions[ptr] = msgid;
+    strcpy(subscriptions[ptr].key,key);
+    subscriptions->ptr = subscriptions->ptr + 1;
 }
 
-
-void notify(char *key, int connection, char *message){
-    printf("Notify");
-    char final_message [100];
-    initialize_message_array(final_message, sizeof final_message);
-//    subscriber *pSubscriber = first;
-
-    //wenn subscr in der Liste --> benachrichtge ihn
-    if(check_if_subscriber_on_list(key) == -1){
-//        snprintf(final_message, sizeof(final_message), "\nFound\n");
-//        send(connection, final_message, sizeof(final_message), 0);
-//        printf("\nKey %s changed.", key);
-        snprintf(final_message, sizeof(final_message), "\nSubscriber Message received: %s\n", message);
-        send(connection, final_message, sizeof(final_message), 0);
+//die Liste mit Susbscriber nach einer Zuprdnung suchen und
+// zu der Message Queue hinzufügen. msgtype = 5 haben wir für SUB Command festgelegt
+//und so wissen wir dass es sich um eine SUB Command handelt
+void notify(char *message, char *key, struct subscription *subscriptions){
+    for(int i=0;i<subscriptions->ptr;i++){
+        if(strcmp(subscriptions[i].key,key) == 0) {
+            add_message_to_queue(message, key, subscriptions->subscriptions[i], 5);
+        }
     }
-//    while (pSubscriber != 0) {
-//        snprintf(final_message, sizeof(final_message), "\nWHile chleife in notify");
-//        send(connection, final_message, sizeof(final_message), 0);
-//        printf("\nSubscriber key %s",pSubscriber->key);
-//        if (strcmp(key, pSubscriber->key)==0) {
-//
-//        }
-//        pSubscriber = pSubscriber->next;
-//    }
+}
+//hier speichern wir was der SUbscriber als Notification kriegen soll.
+// smgsnd sendet die Notification an dem Subscriber
+void add_message_to_queue(char *message, char *key, int msgid, int msgtype){
+    struct msgBuf buf;
+    buf.mtype = msgtype;
+    strcpy(buf.mtext, message);
+    strcpy(buf.key, key);
+    msgsnd(msgid,&buf,sizeof(buf),0);
 }

@@ -2,29 +2,20 @@
 
 #ifndef PRAKBS22_SUBSCRIBERSTORE_H
 #define PRAKBS22_SUBSCRIBERSTORE_H
-//#include "keyValueStore.h"
-//Konstrukt für ein subscriber in der linked List
-typedef struct subscriber {
-    char *key;
-    int pid;
-    struct subscriber *next;
-} subscriber;
-/**
- *
- * @param key
- * @return 1 when key not found and 0 when key found
- */
-int check_if_subscriber_on_list(char *key);
-/**
- *
- * @param key
- * @param pid
- * füge Subscriber hinzu
- */
-void add_subscriber(char *key);
-/**
- * lösche die Liste
- */
-void clear_subscribers();
-void notify(char *key, int connection, char *message);
+
+struct subscription {
+    int subscriptions[50];
+    char key[50];
+    //ptr zeigt auf die Stelle des Arrays, die frei ist
+    int ptr;
+};
+
+int check_if_in_list(struct subscription *subscriptions, char *key, int msgid);
+
+void add_to_queue(int msgid, struct subscription *subscriptions, char *key);
+
+void notify(char *message, char *key, struct subscription *subscriptions);
+
+void add_message_to_queue(char *message, char *key, int msgid, int msgtype);
+
 #endif //PRAKBS22_SUBSCRIBERSTORE_H

@@ -126,6 +126,14 @@ off_t offset)
 - filedes = Filedeskriptor, das gemappt werden soll\
   https://www.youtube.com/watch?v=rPV6b8BUwxM
 - https://stackoverflow.com/questions/21311080/linux-shared-memory-shmget-vs-mmap
+>mmap method is a little bit more restrictive then shmget, but easier to use.\
+shmget is the old System V shared memory model and has the widest support.\
+mmap/shm_open is the new POSIX way to do shared memory and is easier to use.\
+If your OS permits the use of POSIX shared memory then I would suggest going with that.\
+
+Some hints:
+
+If you create your children via fork then mmap with MAP_ANONYMOUS | MAP_SHARED is by far the easiest way - just one call. MAP_ANONYMOUS is however a Linux extension not specified by POSIX.
 
 **fork()** erstellt Kinderprozesse. Returnt 0 zu dem Kind und ProzessId vom Kind zum Elternprozess\
 https://www.youtube.com/watch?v=ss1-REMJ9GA&t=0s
@@ -158,5 +166,79 @@ include <unistd.h> --> erlaubt uns Systemaufrufe zu nutzen wie fork()\
 # Meilenstein 3
 - wir haben semaphore benutzt, um race conditions zu verhindern
 
+## Semaphore
+
 ### semop()
 https://man7.org/linux/man-pages/man2/semop.2.html
+
+
+**int semop(int id, struct sembuf *ops, int count);**
+
+**Effekt:**
+- Der Systemaufruf semop() manipuliert Semaphorwerte durch eine Gruppe\
+von P- und V-Operationen. Führt mindestens eine der P-Operationen zur Blockierung, \
+so wird der Prozeß blockiert und vorerst keine der Operationen ausgeführt.
+>Includes:
+include<sys/ipc.h>\
+include<sys/sem.h>\
+include<sys/types.h>
+
+
+**Parameter:**
+
+**int id:**
+Interner Identifikator für die Semaphorgruppe, wie von semget() geliefert.\
+**struct sembuf * ops:**
+Zeiger auf ein Feld mit Semaphoroperationen. \
+Die Komponenten dieses Feldes sind vom Typ struct sembuf:
+
+>struct sembuf{\
+short sem_num;\
+short sem_op;\
+short sem_flg;\
+}
+- **sem_num:** Gruppeninterne Nummer des Semaphors, auf dem
+  die Operation ausgeführt werden soll.
+- **sem_op**: 
+  - **sem_op>0:** addiere sem_op zum Semaphorwert und
+  deblockiere alle wartenden Prozesse, die dann einer nach
+  dem anderen erneut versuchen, ihre Semaphoroperation
+  erfolgreich auszuführen.
+  - **sem_op<0:** falls Semaphorwert + sem_op>=0,
+  addiere sem_op zum Semaphorwert, sonst blockiere.
+int count: Anzahl der Semaphore in der Gruppe.
+
+**Rückgabe:**
+Wert des Semaphors, auf den die letzte Semaphoroperation in ops zugreift, bevor diese Operation stattfand, oder -1 bei Fehler.
+
+## Message Queue
+**int msgget(key_t key, int msgflg)**
+- This system call creates or allocates a System V message queue
+- first argument, key, recognizes the message queue.
+- The second argument, shmflg, specifies the required message queue flag/s such as IPC_CREAT (creating message queue if not exists)
+
+**int msgsnd(int msgid, const void** *msgp, **size_t msgsz, int msgflg)**
+- This system call sends/appends a message into the message queue 
+- msgid recognizes the message queue i.e., message queue identifier. 
+- msgp, is the pointer to the message, sent to the caller, defined in the structure of the following form
+
+**struct msgbuf {
+long mtype;
+char mtext[1];
+};**
+- mtype is used for communicating with different message types
+- mtext is an array or other structure whose size is specified by msgsz (positive value).Default: zero size message, which is permitted. 
+- msgsz, is the size of message (the message should end with a null character)
+- msgflg, indicates certain flags such as IPC_NOWAIT (returns immediately when no message is found in queue or MSG_NOERROR (truncates message text, if more than msgsz bytes)
+
+**int msgrcv(int msgid, const** void *msgp,**size_t msgsz, long msgtype, int msgflg)**
+
+- This system call retrieves the message from the message queue
+- msgid, recognizes the message queue i.e., the message queue identifier 
+- msgp, is the pointer of the message received from the caller. 
+- msgsz, is the size of the message received
+- msgtype, indicates the type of message − 
+  - If msgtype is 0 − Reads the first received message in the queue 
+  - If msgtype is +ve − Reads the first message in the queue of type msgtype (if msgtype is 10, then reads only the first message of type 10 even though other types may be in the queue at the beginning)
+  - If msgtype is –ve − Reads the first message of lowest type less than or equal to the absolute value of message type (say, if msgtype is -5, then it reads first message of type less than 5 i.e., message type from 1 to 5)
+- msgflg, indicates certain flags such as IPC_NOWAIT (returns immediately when no message is found in the queue or MSG_NOERROR (truncates the message text if more than msgsz bytes)

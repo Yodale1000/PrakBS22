@@ -25,17 +25,16 @@ int main() {
     //mmap dient zur Abbildung zwischen einem Prozessadressraum einer Datei
     struct keyValueStore *data_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
                                             MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    //die Zuordnung = Subscription von einem msgid (etwas wie ClientID) zu einem key
     struct subscription *subscription_store = mmap(NULL, 1000, PROT_READ | PROT_WRITE,
                                      MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     int msgid;
 
-    //printf("%d", msgid);
-
-
     static sem_t sem;
-//    const char semname[] = "/tmp/mysem";
+//   initialisieren des Semaphores
     sem_init(&sem, 1, 1);
 
+    //?? marker--> googeln
     int semid;
     int marker[1];
     marker[0] = 1;
@@ -50,20 +49,23 @@ int main() {
 
         //erstelle Kinderprozesse
         if (fork() == 0) {
+            //wir kennzeichnen ein Client damit, um mit ihm zu kommunizieren mit dem message queue
             msgid = msgget(IPC_PRIVATE,IPC_CREAT|0777);
+            //Fehler auffangen
             if (msgid < 0) {
                 perror("msgget");
                 exit(1);
             }
             printf("%d", msgid);
-            // create new message id
             int i = 0;
+            // Prozess erstellen, der prüft ob es neue Nachrichten in der message Queue gibt. Da  senden wir
+            // bei put und delete zu message Queue dass diese Commands stattgefunden haben
             if (fork() == 0){
                 while(1) {
                     message_loop(connection, msgid);
                 }
             }
-            //mysemp = sem_open(semname, O_CREAT, 0644, 1);
+
             while (i != 2) {
                 i=exec(prepare_input(&connection), &connection, data_store, semid, msgid, subscription_store);
             }

@@ -33,19 +33,6 @@ struct msgBuf
     long mtype;
     char mtext[100];
     char key[100];
-    int commandtype;
-};
-// die msgId, für die ein Client abonniert ist
-typedef struct messageQueueElement {
-    int msgid;
-    struct messageQueueElement *next;
-} messageQueueElement;
-
-struct subscription {
-    int subscriptions[50];
-    char key[50];
-    //ptr zeigt auf die Stelle des Arrays, die frei ist
-    int ptr;
 };
 
 struct input *prepare_input(const int *connection);
@@ -92,7 +79,6 @@ void down(int semid);
 int exec(struct input *input, const int *connection, struct keyValueStore *key_val, int semid, int msgid, struct subscription *subscriptionsStore);
 
 void message_loop(const int connection, int msgid);
-void add_sub_message_loop(const int connection, int msgid);
 void add_to_queue(int msgid, struct subscription *subscriptions, char *key);
 
 #endif //PRAKBS22_SUB_H
