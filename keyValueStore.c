@@ -38,10 +38,10 @@ int put(char *key, char *value, struct keyValueStore *kvs, int connection, int m
             strcpy(kvs[i].value, value);
             strcpy(kvs[i].key, key);
             //sprintf() wird dazu verwendet, um einen String aus einem Formatstring zu erzeugen
-            snprintf(message, sizeof("PUT: %s:%s"), "PUT: %s:%s\n", kvs[i].key, kvs[i].value);
+            snprintf(message, sizeof("PUT: %s:%s      "), "PUT: %s:%s\n", kvs[i].key, kvs[i].value);
             //wir müssen es mitteilen, was passiert ist
             send(connection, message, sizeof(message), 0);
-            // wir gehen die subscription Liste durch und prfen ob es zu dem übergebenen key
+            // wir gehen die subscription Liste durch und prüfen ob es zu dem übergebenen key
             // eine Subscription existiert, wenn ja, wird der Subscriber benachrichtigt über
             //die Änderung
             notify(message, key, subscriptions);
