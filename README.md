@@ -168,6 +168,34 @@ include <unistd.h> --> erlaubt uns Systemaufrufe zu nutzen wie fork()\
 
 ## Semaphore
 
+  **Struktur eines Programms**
+W_ausschluss mit COUNTER = 1 initialisieren\
+**<nicht_kritischer_Bereich>**\
+W_ausschluss.**DOWN()**;\
+**<kritischer_Bereich>**\
+W_ausschluss.**UP()**;\
+**<nicht_kritischer_Bereich>**
+  
+- mit UP geben wir den Prozess frei und er tritt in den nicht kritischen Bereich ein
+- mit DOWN blockieren wir den Prozess und er tritt in den kritischen Bereich ein
+  
+- im kritischen Bereich darf nur der blockierte Prozess arbeiten und der andere Prozess ist im Warteraum
+  ![image](https://user-images.githubusercontent.com/80696082/172784516-43032ed6-7e5c-4513-8bf9-731d933848df.png)
+- DOWN: P-Operation - passeeren (passieren)
+- UP:  V-Operation - vrijgeven (freigeben)
+  
+- die Variable has_exclusive_access dient zur Prüfung, ob der Prozess blockiert ist oder nicht:
+  - has_exclusive_access = 0 --> down
+  - has_exclusive_access = 1 --> up
+
+  
+### sem_init()
+ - initializes the unnamed semaphore at the address pointed to by sem. 
+ - The value argument specifies the initial value for the semaphore.
+ - The pshared argument indicates whether this semaphore is to be shared between the threads of a process, or between processes.
+    - value 0, then the semaphore is shared between the threads of a process, and should be located at some address that is visible to all threads (e.g., a global variable, or a variable allocated dynamically on the heap).
+    - If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
+  
 ### semop()
 https://man7.org/linux/man-pages/man2/semop.2.html
 
@@ -211,6 +239,15 @@ int count: Anzahl der Semaphore in der Gruppe.
 **Rückgabe:**
 Wert des Semaphors, auf den die letzte Semaphoroperation in ops zugreift, bevor diese Operation stattfand, oder -1 bei Fehler.
 
+### semctl()
+  ![image](https://user-images.githubusercontent.com/80696082/172786851-15ea3a5d-4290-430d-8827-ec9f40ca31ae.png)
+
+  - aus der VL:
+  // Anschließend wird der Semaphor auf 1 gesetzt\
+marker[0] = 1;
+  - semctl wird benutzt, um Steurungsfunktionen durchzuführen
+  
+  
 ## Message Queue
 **int msgget(key_t key, int msgflg)**
 - This system call creates or allocates a System V message queue
